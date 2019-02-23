@@ -51,7 +51,10 @@ namespace Algorithms
                 initialRestrictions.VertexToColourCount.Add(vertexKVP.Key, new int[graph.VerticesKVPs.Count]);
             }
 
-            return Recurse(graph, initialRestrictions, initialSolution, dummySolution).vertexToColour;
+            var solution = Recurse(graph, initialRestrictions, initialSolution, dummySolution);
+            // TODO: colour those who have negative colours in increasing order
+
+            return solution.vertexToColour;
         }
 
         private Solution Recurse(Graph graphToColour, Restrictions restrictions, Solution currentSolution, Solution bestSolution)
@@ -77,8 +80,9 @@ namespace Algorithms
                     }
 
                     // remove vertex
-                    var restorOperations = new Stack<RestoreOp>();
-                    restorOperations.Push(graphToColour.RemoveVertex(vertexToColour));
+                    var restoreOperations = new Stack<RestoreOp>();
+                    restoreOperations.Push(graphToColour.RemoveVertex(vertexToColour));
+                    currentSolution.vertexToColour.Add(vertexToColour, colour);
 
                     // remove vertices that are easily colourable (consider candidates only!)
                     var foundEasilyColourableVertex = true;
@@ -101,7 +105,9 @@ namespace Algorithms
 
                             if (upperBoundOnNeighbouringDifferentColourCount < currentSolution.colourCount)
                             {
-                                restorOperations.Push(graphToColour.RemoveVertex(vertexKVP.Key));
+                                restoreOperations.Push(graphToColour.RemoveVertex(vertexKVP.Key));
+                                // "I suppose you think that was terribly clever"
+                                currentSolution.vertexToColour.Add(vertexKVP.Key, -currentSolution.vertexToColour.Keys.Count);
                                 foundEasilyColourableVertex = true;
                                 break;
                             }
@@ -109,14 +115,14 @@ namespace Algorithms
                     }
 
                     // recurse and update best statistics
-                    currentSolution.vertexToColour.Add(vertexToColour, colour);
                     bestSolution = Recurse(graphToColour, restrictions, currentSolution, bestSolution);
-                    currentSolution.vertexToColour.Remove(vertexToColour);
 
                     // restore all vertices
-                    foreach (var restore in restorOperations)
+                    while (restoreOperations.Count > 0)
                     {
-                        graphToColour.RestoreVertex(restore);
+                        var restoreOp = restoreOperations.Pop();
+                        graphToColour.RestoreVertex(restoreOp);
+                        currentSolution.vertexToColour.Remove(restoreOp.vertex);
                     }
 
                     // restore restrictions
@@ -134,12 +140,11 @@ namespace Algorithms
             else
             {
                 // no more vertices to colour
-                // 
-                if (currentSolution.colourCount < bestSolution.colourCount)
-                {
-                    // colour those who have negative colour and return the answer
-                    bestSolution = currentSolution.DeepClone();
-                }
+                // if the solution is indeed better...
+                if (currentSolution.colourCount >= bestSolution.colourCount)
+                    throw new Exception("Something went terribly wrong, proposed solution is not better");
+                // warning! there may be vertices with negative colourings!
+                bestSolution = currentSolution.DeepClone();
             }
 
             return bestSolution;
