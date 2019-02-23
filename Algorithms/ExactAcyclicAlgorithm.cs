@@ -65,10 +65,10 @@ namespace Algorithms
                 foreach (var colour in GetPossibleAcyclicColourings(graphToColour, vertexToColour, currentSolution, restrictions, bestSolution))
                 {
                     var increasedColourCount = false;
+                    if (colour >= bestSolution.colourCount - 1)
+                        continue;
                     if (colour >= currentSolution.colourCount)
                     {
-                        if (colour >= bestSolution.colourCount - 1)
-                            continue;
                         currentSolution.colourCount += 1;
                         increasedColourCount = true;
                     }
@@ -137,8 +137,6 @@ namespace Algorithms
             var maximumInclusivePermissibleColour = Math.Min(currentSolution.colourCount, bestSolution.colourCount - 2);
             for (int colourCandidate = 0; colourCandidate <= maximumInclusivePermissibleColour; colourCandidate++)
             {
-                // TODO: ensure acyclicity!
-                // perform a DFS search and try to reach this very vertex by following a pattern
                 if (restrictions.VertexToColourCount[vertex][colourCandidate] == 0)
                 {
                     if (EnsureAcyclicity(graph, vertex, colourCandidate, currentSolution))

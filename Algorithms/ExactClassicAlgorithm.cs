@@ -94,10 +94,10 @@ namespace Algorithms
                 foreach (var colour in GetPossibleColourings(graphToColour, vertexToColour, currentSolution, restrictions, bestSolution))
                 {
                     var increasedColourCount = false;
+                    if (colour >= bestSolution.colourCount - 1)
+                        continue;
                     if (colour >= currentSolution.colourCount)
                     {
-                        if (colour >= bestSolution.colourCount - 1)
-                            continue;
                         currentSolution.colourCount += 1;
                         increasedColourCount = true;
                     }
