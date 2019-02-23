@@ -52,7 +52,10 @@ namespace Algorithms
             }
 
             var solution = Recurse(graph, initialRestrictions, initialSolution, dummySolution);
+            
             // TODO: colour those who have negative colours in increasing order
+            // figure out colouring order
+            // colour greedily the uncoloured vertices
 
             return solution.vertexToColour;
         }
@@ -85,34 +88,34 @@ namespace Algorithms
                     currentSolution.vertexToColour.Add(vertexToColour, colour);
 
                     // remove vertices that are easily colourable (consider candidates only!)
-                    var foundEasilyColourableVertex = true;
-                    while (foundEasilyColourableVertex)
-                    {
-                        foundEasilyColourableVertex = false;
-                        foreach (var vertexKVP in graphToColour.VerticesKVPs)
-                        {
-                            var upperBoundOnNeighbouringDifferentColourCount = vertexKVP.Value.Count;
+                    //var foundEasilyColourableVertex = true;
+                    //while (foundEasilyColourableVertex)
+                    //{
+                    //    foundEasilyColourableVertex = false;
+                    //    foreach (var vertexKVP in graphToColour.VerticesKVPs)
+                    //    {
+                    //        var upperBoundOnNeighbouringDifferentColourCount = vertexKVP.Value.Count;
 
-                            // for speed, improve bound if necessary
-                            if (upperBoundOnNeighbouringDifferentColourCount >= currentSolution.colourCount)
-                            {
-                                var maximumColour = restrictions.VertexToColourCount[vertexKVP.Key].Length;
-                                for (int possibleColour = 0; possibleColour < maximumColour; possibleColour++)
-                                {
-                                    upperBoundOnNeighbouringDifferentColourCount -= Math.Max(0, restrictions.VertexToColourCount[vertexKVP.Key][possibleColour] - 1);
-                                }
-                            }
+                    //        // for speed, improve bound if necessary
+                    //        if (upperBoundOnNeighbouringDifferentColourCount >= currentSolution.colourCount)
+                    //        {
+                    //            var maximumColour = restrictions.VertexToColourCount[vertexKVP.Key].Length;
+                    //            for (int possibleColour = 0; possibleColour < maximumColour; possibleColour++)
+                    //            {
+                    //                upperBoundOnNeighbouringDifferentColourCount -= Math.Max(0, restrictions.VertexToColourCount[vertexKVP.Key][possibleColour] - 1);
+                    //            }
+                    //        }
 
-                            if (upperBoundOnNeighbouringDifferentColourCount < currentSolution.colourCount)
-                            {
-                                restoreOperations.Push(graphToColour.RemoveVertex(vertexKVP.Key));
-                                // "I suppose you think that was terribly clever"
-                                currentSolution.vertexToColour.Add(vertexKVP.Key, -currentSolution.vertexToColour.Keys.Count);
-                                foundEasilyColourableVertex = true;
-                                break;
-                            }
-                        }
-                    }
+                    //        if (upperBoundOnNeighbouringDifferentColourCount < currentSolution.colourCount)
+                    //        {
+                    //            restoreOperations.Push(graphToColour.RemoveVertex(vertexKVP.Key));
+                    //            // "I suppose you think that was terribly clever"
+                    //            currentSolution.vertexToColour.Add(vertexKVP.Key, -currentSolution.vertexToColour.Keys.Count);
+                    //            foundEasilyColourableVertex = true;
+                    //            break;
+                    //        }
+                    //    }
+                    //}
 
                     // recurse and update best statistics
                     bestSolution = Recurse(graphToColour, restrictions, currentSolution, bestSolution);
@@ -181,7 +184,7 @@ namespace Algorithms
 
         private List<int> GetPossibleAcyclicColourings(Graph graph, int vertex, Solution currentSolution, Restrictions restrictions, Solution bestSolution)
         {
-            // important part to implement
+            // TODO: important part to implement
             throw new NotImplementedException();
         }
     }
