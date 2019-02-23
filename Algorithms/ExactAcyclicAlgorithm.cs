@@ -30,7 +30,11 @@ namespace Algorithms
             }
         }
 
-        public Dictionary<int, int> ColourGraph(Graph graph)
+        public Dictionary<int, int> ColourGraph(Graph graph) => ColourGraph(graph, -1, 1.0);
+        public Dictionary<int, int> ColourGraph(Graph graph, int upperBoundOnNumberOfSteps) => ColourGraph(graph, upperBoundOnNumberOfSteps, 1.0);
+        public Dictionary<int, int> ColourGraph(Graph graph, double alphaRatio) => ColourGraph(graph, -1, alphaRatio);
+
+        private Dictionary<int, int> ColourGraph(Graph graph, int upperBoundOnNumberOfSteps, double alphaRatio)
         {
             var dummySolution = new Solution()
             {
@@ -51,11 +55,20 @@ namespace Algorithms
                 initialRestrictions.VertexToColourCount.Add(vertexKVP.Key, new int[graph.VerticesKVPs.Count]);
             }
 
-            return Recurse(graph, initialRestrictions, initialSolution, dummySolution).vertexToColour;
+
+            var leftSteps = upperBoundOnNumberOfSteps;
+            return Recurse(graph, initialRestrictions, initialSolution, dummySolution, ref leftSteps, alphaRatio).vertexToColour;
         }
 
-        private Solution Recurse(Graph graphToColour, Restrictions restrictions, Solution currentSolution, Solution bestSolution)
+        private Solution Recurse(Graph graphToColour, Restrictions restrictions, Solution currentSolution, Solution bestSolution, ref int upperBoundOnNumberOfSteps, double alphaRatio)
         {
+            if (upperBoundOnNumberOfSteps != -1 && bestSolution.colourCount < int.MaxValue)
+            {
+                if (upperBoundOnNumberOfSteps == 0)
+                    return bestSolution;
+                else
+                    upperBoundOnNumberOfSteps -= 1;
+            }
             if (currentSolution.vertexToColour.Count < graphToColour.VerticesKVPs.Count)
             {
                 // choose a vertex to colour
@@ -72,7 +85,7 @@ namespace Algorithms
                         currentSolution.colourCount += 1;
                         increasedColourCount = true;
                     }
-                    if (currentSolution.colourCount < bestSolution.colourCount)
+                    if (currentSolution.colourCount * alphaRatio < bestSolution.colourCount)
                     {
                         // append restrictions to neighbours
                         foreach (var neighbour in graphToColour.VerticesKVPs[vertexToColour])
@@ -86,7 +99,7 @@ namespace Algorithms
                         currentSolution.vertexToColour.Add(vertexToColour, colour);
 
                         // recurse and update best statistics
-                        bestSolution = Recurse(graphToColour, restrictions, currentSolution, bestSolution);
+                        bestSolution = Recurse(graphToColour, restrictions, currentSolution, bestSolution, ref upperBoundOnNumberOfSteps, alphaRatio);
 
                         currentSolution.vertexToColour.Remove(vertexToColour);
 

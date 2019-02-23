@@ -130,6 +130,10 @@ namespace Algorithms.GraphFactory
             var neighbours = new Dictionary<int, HashSet<int>>();
             for (int i = 0; i < n - 1; i += 1)
             {
+                if (!neighbours.ContainsKey(i))
+                {
+                    neighbours.Add(i, new HashSet<int>());
+                }
                 for (int j = i + 1; j < n; j += 1)
                 {
                     if (random.NextDouble() < density)
