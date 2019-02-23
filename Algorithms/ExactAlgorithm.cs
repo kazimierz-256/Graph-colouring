@@ -52,7 +52,7 @@ namespace Algorithms
             }
 
             var solution = Recurse(graph, initialRestrictions, initialSolution, dummySolution);
-            
+
             // TODO: colour those who have negative colours in increasing order
             // figure out colouring order
             // colour greedily the uncoloured vertices
@@ -73,6 +73,10 @@ namespace Algorithms
                     var increasedColourCount = false;
                     if (colour >= currentSolution.colourCount)
                     {
+                        if (colour >= bestSolution.colourCount - 1)
+                        {
+                            continue;
+                        }
                         currentSolution.colourCount += 1;
                         increasedColourCount = true;
                     }
