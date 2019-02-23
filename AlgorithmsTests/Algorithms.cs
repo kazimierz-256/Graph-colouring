@@ -12,7 +12,7 @@ namespace AlgorithmsTests
         public void Test1()
         {
             var graph = GraphFactory.GeneratePetersenGraph();
-            var exactAlgorithm = new ExactAlgorithm();
+            var exactAlgorithm = new ExactClassicAlgorithm();
             var solution = exactAlgorithm.ColourGraph(graph);
             Assert.Equal(graph.VerticesKVPs.Keys.Count, solution.Keys.Count);
             var min = solution.Values.Min();
