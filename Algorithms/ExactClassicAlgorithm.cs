@@ -94,74 +94,76 @@ namespace Algorithms
                 foreach (var colour in GetPossibleColourings(graphToColour, vertexToColour, currentSolution, restrictions, bestSolution))
                 {
                     var increasedColourCount = false;
-                    if (colour >= bestSolution.colourCount - 1)
-                        continue;
                     if (colour >= currentSolution.colourCount)
                     {
                         currentSolution.colourCount += 1;
                         increasedColourCount = true;
                     }
-                    // append restrictions to neighbours
-                    foreach (var neighbour in graphToColour.VerticesKVPs[vertexToColour])
-                    {
-                        restrictions.VertexToColourCount[neighbour][colour] += 1;
-                    }
 
-                    // remove vertex
-                    var restoreOperations = new Stack<RestoreOp>();
-                    restoreOperations.Push(graphToColour.RemoveVertex(vertexToColour));
-                    currentSolution.vertexToColour.Add(vertexToColour, colour);
-
-                    // remove vertices that are easily colourable (consider candidates only!)
-                    var foundEasilyColourableVertex = true;
-                    while (foundEasilyColourableVertex)
+                    if (currentSolution.colourCount < bestSolution.colourCount)
                     {
-                        foundEasilyColourableVertex = false;
-                        foreach (var vertexKVP in graphToColour.VerticesKVPs)
+                        // append restrictions to neighbours
+                        foreach (var neighbour in graphToColour.VerticesKVPs[vertexToColour])
                         {
-                            var remotelyOccupied = restrictions.VertexToColourCount[vertexKVP.Key];
+                            restrictions.VertexToColourCount[neighbour][colour] += 1;
+                        }
 
-                            var neighbourCount = vertexKVP.Value.Count;
-                            var pessimisticColour = 0;
-                            for (int neighbourRestrictions = neighbourCount; pessimisticColour < remotelyOccupied.Length; pessimisticColour++)
-                            {
-                                if (neighbourRestrictions == 0)
-                                {
-                                    if (remotelyOccupied[pessimisticColour] == 0)
-                                        break;
-                                }
-                                else if (remotelyOccupied[pessimisticColour] == 0)
-                                {
-                                    neighbourRestrictions--;
-                                }
-                            }
+                        // remove vertex
+                        var restoreOperations = new Stack<RestoreOp>();
+                        restoreOperations.Push(graphToColour.RemoveVertex(vertexToColour));
+                        currentSolution.vertexToColour.Add(vertexToColour, colour);
 
-                            if (pessimisticColour < currentSolution.colourCount)
+                        // remove vertices that are easily colourable (consider candidates only!)
+                        var foundEasilyColourableVertex = true;
+                        while (foundEasilyColourableVertex)
+                        {
+                            foundEasilyColourableVertex = false;
+                            foreach (var vertexKVP in graphToColour.VerticesKVPs)
                             {
-                                restoreOperations.Push(graphToColour.RemoveVertex(vertexKVP.Key));
-                                // "I suppose you think that was terribly clever"
-                                currentSolution.vertexToColour.Add(vertexKVP.Key, -currentSolution.vertexToColour.Keys.Count);
-                                foundEasilyColourableVertex = true;
-                                break;
+                                var remotelyOccupied = restrictions.VertexToColourCount[vertexKVP.Key];
+
+                                var neighbourCount = vertexKVP.Value.Count;
+                                var pessimisticColour = 0;
+                                for (int neighbourRestrictions = neighbourCount; pessimisticColour < remotelyOccupied.Length; pessimisticColour++)
+                                {
+                                    if (neighbourRestrictions == 0)
+                                    {
+                                        if (remotelyOccupied[pessimisticColour] == 0)
+                                            break;
+                                    }
+                                    else if (remotelyOccupied[pessimisticColour] == 0)
+                                    {
+                                        neighbourRestrictions--;
+                                    }
+                                }
+
+                                if (pessimisticColour < currentSolution.colourCount)
+                                {
+                                    restoreOperations.Push(graphToColour.RemoveVertex(vertexKVP.Key));
+                                    // "I suppose you think that was terribly clever"
+                                    currentSolution.vertexToColour.Add(vertexKVP.Key, -currentSolution.vertexToColour.Keys.Count);
+                                    foundEasilyColourableVertex = true;
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    // recurse and update best statistics
-                    bestSolution = Recurse(graphToColour, restrictions, currentSolution, bestSolution);
+                        // recurse and update best statistics
+                        bestSolution = Recurse(graphToColour, restrictions, currentSolution, bestSolution);
 
-                    // restore all vertices
-                    while (restoreOperations.Count > 0)
-                    {
-                        var restoreOp = restoreOperations.Pop();
-                        graphToColour.RestoreVertex(restoreOp);
-                        currentSolution.vertexToColour.Remove(restoreOp.vertex);
-                    }
+                        // restore all vertices
+                        while (restoreOperations.Count > 0)
+                        {
+                            var restoreOp = restoreOperations.Pop();
+                            graphToColour.RestoreVertex(restoreOp);
+                            currentSolution.vertexToColour.Remove(restoreOp.vertex);
+                        }
 
-                    // restore restrictions
-                    foreach (var neighbour in graphToColour.VerticesKVPs[vertexToColour])
-                    {
-                        restrictions.VertexToColourCount[neighbour][colour] -= 1;
+                        // restore restrictions
+                        foreach (var neighbour in graphToColour.VerticesKVPs[vertexToColour])
+                        {
+                            restrictions.VertexToColourCount[neighbour][colour] -= 1;
+                        }
                     }
 
                     if (increasedColourCount)

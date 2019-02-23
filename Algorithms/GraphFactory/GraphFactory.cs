@@ -7,7 +7,7 @@ namespace Algorithms.GraphFactory
 {
     public static class GraphFactory
     {
-        public static void Connect(Dictionary<int, HashSet<int>> edges, int i, int j)
+        private static void Connect(Dictionary<int, HashSet<int>> edges, int i, int j)
         {
             if (!edges.ContainsKey(i))
                 edges.Add(i, new HashSet<int>());
@@ -69,6 +69,96 @@ namespace Algorithms.GraphFactory
             return new Graph
             {
                 VerticesKVPs = edges
+            };
+        }
+
+        public static Graph GenerateCliquesConnectedByChain(int i, int j, int chainLength)
+        {
+            if (chainLength < 2)
+                throw new Exception("The chain is too short, try at least 2 edges");
+
+            var vertices = new HashSet<int>(Enumerable.Range(0, i + j + chainLength - 1));
+            var edges = new Dictionary<int, HashSet<int>>();
+
+            foreach (var vertex in vertices)
+                edges.Add(vertex, new HashSet<int>());
+
+            for (int i1 = 0; i1 < i; i1 += 1)
+                for (int i1helper = 0; i1helper < i1; i1helper += 1)
+                    Connect(edges, i1, i1helper);
+
+            for (int j1 = i; j1 < i + j; j1 += 1)
+                for (int j1helper = i; j1helper < j1; j1helper += 1)
+                    Connect(edges, j1, j1helper);
+
+            Connect(edges, 0, i + j);
+            for (int chain = 0; chain < chainLength - 2; chain += 1)
+                Connect(edges, i + j + chain, i + j + chain + 1);
+            Connect(edges, i + j + chainLength - 2, i);
+
+            return new Graph
+            {
+                VerticesKVPs = edges
+            };
+        }
+
+        public static Graph GenerateCycle(int n)
+        {
+            var vertices = new HashSet<int>(Enumerable.Range(0, n));
+            var neighbours = new Dictionary<int, HashSet<int>>
+            {
+                { 0, new HashSet<int>() { 1 } }
+            };
+            for (int i = 0; i < n - 1; i += 1)
+            {
+                neighbours[i].Add(i + 1);
+                neighbours.Add(i + 1, new HashSet<int>() { i });
+            }
+            neighbours[n - 1].Add(0);
+            neighbours[0].Add(n - 1);
+
+            return new Graph
+            {
+                VerticesKVPs = neighbours
+            };
+        }
+
+
+        public static Graph GenerateRandom(int n, double density, int generatingSeed)
+        {
+            var random = new Random(generatingSeed);
+            var neighbours = new Dictionary<int, HashSet<int>>();
+            for (int i = 0; i < n - 1; i += 1)
+            {
+                for (int j = i + 1; j < n; j += 1)
+                {
+                    if (random.NextDouble() < density)
+                    {
+                        // add undirected edge
+                        if (neighbours.ContainsKey(i))
+                        {
+                            neighbours[i].Add(j);
+                        }
+                        else
+                        {
+                            neighbours.Add(i, new HashSet<int> { j });
+                        }
+
+                        if (neighbours.ContainsKey(j))
+                        {
+                            neighbours[j].Add(i);
+                        }
+                        else
+                        {
+                            neighbours.Add(j, new HashSet<int> { i });
+                        }
+                    }
+                }
+            }
+
+            return new Graph
+            {
+                VerticesKVPs = neighbours
             };
         }
     }

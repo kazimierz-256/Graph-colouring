@@ -65,35 +65,37 @@ namespace Algorithms
                 foreach (var colour in GetPossibleAcyclicColourings(graphToColour, vertexToColour, currentSolution, restrictions, bestSolution))
                 {
                     var increasedColourCount = false;
-                    if (colour >= bestSolution.colourCount - 1)
-                        continue;
                     if (colour >= currentSolution.colourCount)
                     {
+                        if (colour > currentSolution.colourCount)
+                            throw new Exception("New colour is too large");
                         currentSolution.colourCount += 1;
                         increasedColourCount = true;
                     }
-                    // append restrictions to neighbours
-                    foreach (var neighbour in graphToColour.VerticesKVPs[vertexToColour])
+                    if (currentSolution.colourCount < bestSolution.colourCount)
                     {
-                        restrictions.VertexToColourCount[neighbour][colour] += 1;
+                        // append restrictions to neighbours
+                        foreach (var neighbour in graphToColour.VerticesKVPs[vertexToColour])
+                        {
+                            restrictions.VertexToColourCount[neighbour][colour] += 1;
+                        }
+
+                        // remove vertex
+                        //var restoreOperations = new Stack<RestoreOp>();
+                        //restoreOperations.Push(graphToColour.RemoveVertex(vertexToColour));
+                        currentSolution.vertexToColour.Add(vertexToColour, colour);
+
+                        // recurse and update best statistics
+                        bestSolution = Recurse(graphToColour, restrictions, currentSolution, bestSolution);
+
+                        currentSolution.vertexToColour.Remove(vertexToColour);
+
+                        // restore restrictions
+                        foreach (var neighbour in graphToColour.VerticesKVPs[vertexToColour])
+                        {
+                            restrictions.VertexToColourCount[neighbour][colour] -= 1;
+                        }
                     }
-
-                    // remove vertex
-                    //var restoreOperations = new Stack<RestoreOp>();
-                    //restoreOperations.Push(graphToColour.RemoveVertex(vertexToColour));
-                    currentSolution.vertexToColour.Add(vertexToColour, colour);
-
-                    // recurse and update best statistics
-                    bestSolution = Recurse(graphToColour, restrictions, currentSolution, bestSolution);
-
-                    currentSolution.vertexToColour.Remove(vertexToColour);
-
-                    // restore restrictions
-                    foreach (var neighbour in graphToColour.VerticesKVPs[vertexToColour])
-                    {
-                        restrictions.VertexToColourCount[neighbour][colour] -= 1;
-                    }
-
                     if (increasedColourCount)
                     {
                         currentSolution.colourCount -= 1;
@@ -105,7 +107,7 @@ namespace Algorithms
                 // no more vertices to colour
                 // if the solution is indeed better...
                 if (currentSolution.colourCount >= bestSolution.colourCount)
-                    throw new Exception("Something went terribly wrong, proposed solution is not better");
+                    throw new Exception("Proposed solution is not better");
                 // warning! there may be vertices with negative colourings!
                 bestSolution = currentSolution.DeepClone();
             }
