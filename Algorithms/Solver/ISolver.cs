@@ -6,6 +6,6 @@ namespace Algorithms.Solver
 {
     interface ISolver
     {
-        int[] ColourGraph(Graph graph);
+        Dictionary<int, int> ColourGraph(Graph graph);
     }
 }
