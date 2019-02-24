@@ -169,8 +169,6 @@ namespace Algorithms
                 if (currentSolution.vertexToColour.ContainsKey(neighbour))
                 {
                     var complementaryColour = currentSolution.vertexToColour[neighbour];
-                    if (complementaryColour == colourCandidate)
-                        return false;
                     foreach (var neighbour2 in graph.VerticesKVPs[neighbour])
                     {
                         if (currentSolution.vertexToColour.ContainsKey(neighbour2) && currentSolution.vertexToColour[neighbour2] == colourCandidate)
