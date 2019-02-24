@@ -51,6 +51,7 @@ namespace AlgorithmsTests
             if (classicSolution != null)
                 Assert.True(max >= classicSolution.Values.Max());
             VerifyClassicSolution(graph, solution);
+            VerifyAcyclicSolution(graph, solution);
         }
 
         private void VerifyClassicSolution(Graph graph, Dictionary<int, int> solution)
@@ -64,9 +65,47 @@ namespace AlgorithmsTests
             }
         }
 
-        private void VerifyAcyclicSolution(Dictionary<int, int> solution)
+        private void VerifyAcyclicSolution(Graph graph, Dictionary<int, int> solution)
         {
-            // TODO: implement
+            foreach (var beginningVertex in solution.Keys)
+            {
+                var beginningColour = solution[beginningVertex];
+                foreach (var neighbouringVertex in graph.VerticesKVPs[beginningVertex])
+                {
+                    var secondColour = solution[neighbouringVertex];
+                    foreach (var neighbour2 in graph.VerticesKVPs[neighbouringVertex])
+                    {
+                        if (neighbour2 != beginningVertex && solution[neighbour2] == beginningColour)
+                            Assert.True(DFS(graph, solution, beginningVertex, neighbour2, beginningColour, secondColour, new HashSet<int>() { neighbouringVertex, neighbour2 }));
+                    }
+                }
+            }
+        }
+
+        private bool DFS(Graph graph, Dictionary<int, int> solution, int beginningVertex, int consideringVertex, int beginningColour, int secondColour, HashSet<int> hashSet)
+        {
+            foreach (var neighbour in graph.VerticesKVPs[consideringVertex])
+            {
+                if (!hashSet.Contains(neighbour))
+                {
+                    hashSet.Add(neighbour);
+                    if (hashSet.Count % 2 == 1 && solution[neighbour] == secondColour)
+                    {
+                        if (!DFS(graph, solution, beginningVertex, neighbour, beginningColour, secondColour, hashSet))
+                            return false;
+                    }
+                    else if (hashSet.Count % 2 == 0 && solution[neighbour] == beginningColour)
+                    {
+                        if (neighbour == beginningVertex)
+                            return false;
+
+                        if (!DFS(graph, solution, beginningVertex, neighbour, beginningColour, secondColour, hashSet))
+                            return false;
+                    }
+                    hashSet.Remove(neighbour);
+                }
+            }
+            return true;
         }
     }
 }
