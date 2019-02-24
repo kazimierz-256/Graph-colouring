@@ -13,16 +13,19 @@ namespace AlgorithmsTests
         public void PetersenGraph() => TestGraph(GraphFactory.GeneratePetersenGraph(), 3, null);
 
         [Fact]
+        public void EvenCycle() => TestGraph(GraphFactory.GenerateCycle(4), 2, 3);
+
+        [Fact]
         public void FiveRegularClebschGraph() => TestGraph(GraphFactory.Generate5RegularClebschGraph(), 4, null);
 
         private void TestGraph(Graph graph, int? expectedChromaticNumber, int? expectedAcyclicNumber)
         {
             // classical tests
-            var solution = new ExactClassicAlgorithm().ColourGraph(graph);
+            var solution = new ExactClassicAlgorithmNoDelLazyCutting().ColourGraph(graph);
             DetailedClassicVerification(graph, solution, expectedChromaticNumber);
 
             // cyclicity tests
-            var acyclicSolution = new ExactAcyclicAlgorithm().ColourGraph(graph);
+            var acyclicSolution = new ExactAcyclicAlgorithmLazyCutting().ColourGraph(graph);
             DetailedAcyclicVerification(graph, acyclicSolution, null, expectedAcyclicNumber);
         }
 

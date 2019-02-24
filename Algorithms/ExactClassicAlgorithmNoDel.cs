@@ -5,7 +5,7 @@ using static Algorithms.Graph;
 
 namespace Algorithms
 {
-    public class ExactAcyclicAlgorithm : ISolver
+    public class ExactClassicAlgorithmNoDel : ISolver
     {
         private class Restrictions
         {
@@ -31,8 +31,8 @@ namespace Algorithms
         }
 
         public Dictionary<int, int> ColourGraph(Graph graph) => ColourGraph(graph, -1, 1.0);
-        public Dictionary<int, int> ColourGraphApproximately(Graph graph, int upperBoundOnNumberOfSteps) => ColourGraph(graph, upperBoundOnNumberOfSteps, 1.0);
-        public Dictionary<int, int> ColourGraphApproximately(Graph graph, double alphaRatio) => ColourGraph(graph, -1, alphaRatio);
+        public Dictionary<int, int> ColourGraph(Graph graph, int upperBoundOnNumberOfSteps) => ColourGraph(graph, upperBoundOnNumberOfSteps, 1.0);
+        public Dictionary<int, int> ColourGraph(Graph graph, double alphaRatio) => ColourGraph(graph, -1, alphaRatio);
 
         private Dictionary<int, int> ColourGraph(Graph graph, int upperBoundOnNumberOfSteps, double alphaRatio)
         {
@@ -154,55 +154,31 @@ namespace Algorithms
             {
                 if (restrictions.VertexToColourCount[vertex][colourCandidate] == 0)
                 {
-                    if (EnsureAcyclicity(graph, vertex, colourCandidate, currentSolution))
-                        possibilities.Add(colourCandidate);
+                    possibilities.Add(colourCandidate);
                 }
             }
             return possibilities;
-        }
-
-        private bool EnsureAcyclicity(Graph graph, int vertex, int colourCandidate, Solution currentSolution)
-        {
-            foreach (var neighbour in graph.VerticesKVPs[vertex])
-            {
-                if (currentSolution.vertexToColour.ContainsKey(neighbour))
-                {
-                    var complementaryColour = currentSolution.vertexToColour[neighbour];
-                    foreach (var neighbour2 in graph.VerticesKVPs[neighbour])
-                    {
-                        if (currentSolution.vertexToColour.ContainsKey(neighbour2) && currentSolution.vertexToColour[neighbour2] == colourCandidate)
-                        {
-                            if (neighbour2 != vertex)
-                            {
-                                var exploredVertices = new HashSet<int>() { neighbour, neighbour2 };
-                                if (!Explore(graph, neighbour2, vertex, colourCandidate, complementaryColour, currentSolution, exploredVertices))
-                                    return false;
-                            }
-                        }
-                    }
-                }
-            }
-            return true;
         }
 
         private bool Explore(Graph graph, int alreadyConsidered, int vertex, int colourCandidate, int complementaryColour, Solution currentSolution, HashSet<int> exploredVertices)
         {
             foreach (var neighbour in graph.VerticesKVPs[alreadyConsidered])
             {
-                if (neighbour == vertex)
-                    return false;
                 if (currentSolution.vertexToColour.ContainsKey(neighbour) && !exploredVertices.Contains(neighbour))
                 {
                     exploredVertices.Add(neighbour);
                     // looking for odd
-                    if (exploredVertices.Count % 2 == 0 && currentSolution.vertexToColour[neighbour] == colourCandidate)
+                    if (exploredVertices.Count % 2 == 0 && currentSolution.vertexToColour[neighbour] == complementaryColour)
                     {
                         if (!Explore(graph, neighbour, vertex, colourCandidate, complementaryColour, currentSolution, exploredVertices))
                             return false;
                     }
                     // looking for even
-                    else if (exploredVertices.Count % 2 == 1 && currentSolution.vertexToColour[neighbour] == complementaryColour)
+                    else if (exploredVertices.Count % 2 == 1 && currentSolution.vertexToColour[neighbour] == colourCandidate)
                     {
+                        if (neighbour == vertex)
+                            return false;
+
                         if (!Explore(graph, neighbour, vertex, colourCandidate, complementaryColour, currentSolution, exploredVertices))
                             return false;
                     }
