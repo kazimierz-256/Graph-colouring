@@ -134,23 +134,17 @@ namespace Algorithms
         {
             var possibilities = new List<int>();
             var maximumInclusivePermissibleColour = Math.Min(currentSolution.colourCount, bestSolution.colourCount - 2);
-            var secondLimitingColourInclusive = graph.VerticesKVPs[vertex].Count;
-            var occupiedColours = new bool[graph.VerticesKVPs[vertex].Count + 1];
+            var occupiedColours = new bool[maximumInclusivePermissibleColour + 1];
             foreach (var neighbour in graph.VerticesKVPs[vertex])
             {
                 if (currentSolution.vertexToColour.ContainsKey(neighbour))
                 {
                     var colour = currentSolution.vertexToColour[neighbour];
                     if (colour < occupiedColours.Length)
-                    {
-                        if (occupiedColours[colour])
-                            secondLimitingColourInclusive -= 1;
-                        else
-                            occupiedColours[colour] = true;
-                    }
+                        occupiedColours[colour] = true;
                 }
             }
-            maximumInclusivePermissibleColour = Math.Min(maximumInclusivePermissibleColour, secondLimitingColourInclusive);
+
             for (int colourCandidate = 0; colourCandidate <= maximumInclusivePermissibleColour; colourCandidate++)
             {
                 if (!occupiedColours[colourCandidate])

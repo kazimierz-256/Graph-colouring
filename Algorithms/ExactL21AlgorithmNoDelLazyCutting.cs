@@ -63,13 +63,12 @@ namespace Algorithms
                 // for in possible colours
                 foreach (var colour in GetPossibleAcyclicColourings(graphToColour, vertexToColour, currentSolution, bestSolution))
                 {
-                    var increasedColourCount = false;
+                    var originalColourCount = currentSolution.colourCount;
                     if (colour >= currentSolution.colourCount)
                     {
                         if (colour > currentSolution.colourCount + 1)
                             throw new Exception("New colour is too large");
                         currentSolution.colourCount = colour + 1;
-                        increasedColourCount = true;
                     }
                     if (currentSolution.colourCount * alphaRatio < bestSolution.colourCount)
                     {
@@ -84,10 +83,7 @@ namespace Algorithms
 
                         currentSolution.vertexToColour.Remove(vertexToColour);
                     }
-                    if (increasedColourCount)
-                    {
-                        currentSolution.colourCount -= 1;
-                    }
+                    currentSolution.colourCount = originalColourCount;
                 }
             }
             else
