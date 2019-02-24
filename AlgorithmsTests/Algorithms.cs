@@ -18,6 +18,9 @@ namespace AlgorithmsTests
         [Fact]
         public void FiveRegularClebschGraph() => TestGraph(GraphFactory.Generate5RegularClebschGraph(), 4, null);
 
+        [Fact]
+        public void GruenbaumsGraph() => TestGraph(GraphFactory.GenerateGruenbaumsGraph(), 3, 5);
+
         private void TestGraph(Graph graph, int? expectedChromaticNumber, int? expectedAcyclicNumber)
         {
             // classical tests

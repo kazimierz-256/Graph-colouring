@@ -40,6 +40,33 @@ namespace Algorithms.GraphFactory
             };
         }
 
+        public static Graph GenerateGruenbaumsGraph()
+        {
+            var edges = new Dictionary<int, HashSet<int>>();
+
+            Connect(edges, 0, 1);
+            Connect(edges, 1, 2);
+            Connect(edges, 2, 0);
+
+            Connect(edges, 3, 4);
+            Connect(edges, 4, 5);
+            Connect(edges, 5, 3);
+
+            Connect(edges, 0, 5);
+            Connect(edges, 1, 5);
+
+            Connect(edges, 1, 3);
+            Connect(edges, 2, 3);
+
+            Connect(edges, 0, 4);
+            Connect(edges, 2, 4);
+
+            return new Graph
+            {
+                VerticesKVPs = edges
+            };
+        }
+
         public static Graph Generate5RegularClebschGraph()
         {
             var vertices = new HashSet<int>(Enumerable.Range(0, 16));
