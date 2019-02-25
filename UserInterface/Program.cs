@@ -25,7 +25,7 @@ namespace UserInterface
                     Console.WriteLine($"Size {n}, density {density:f2}");
 
                     stopwatch.Restart();
-                    solution = new ExactClassicAlgorithmNoDelLazyCuttingOptimized().ColourGraph(graph);
+                    solution = new ExactClassicAlgorithm().ColourGraph(graph);
                     stopwatch.Stop();
                     Console.WriteLine($"Graph was classically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms (without deleting, lazily, cutting, optimized)");
 

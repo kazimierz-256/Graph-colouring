@@ -5,7 +5,7 @@ using static Algorithms.Graph;
 
 namespace Algorithms
 {
-    public class ExactL21AlgorithmNoDelLazyCuttingOptimized : ISolver
+    public class ExactL21Algorithm : ISolver
     {
         private class Solution
         {

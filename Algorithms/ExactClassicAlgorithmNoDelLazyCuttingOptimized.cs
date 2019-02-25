@@ -5,7 +5,7 @@ using static Algorithms.Graph;
 
 namespace Algorithms
 {
-    public class ExactClassicAlgorithmNoDelLazyCuttingOptimized : ISolver
+    public class ExactClassicAlgorithm : ISolver
     {
         private class Solution
         {
@@ -70,7 +70,7 @@ namespace Algorithms
                 var vertexToColour = ChooseSuitableVertex(graphToColour, currentSolution, bestSolution);
 
                 // for in possible colours
-                foreach (var colour in GetPossibleAcyclicColourings(graphToColour, vertexToColour, currentSolution, bestSolution))
+                foreach (var colour in GetPossibleColourings(graphToColour, vertexToColour, currentSolution, bestSolution))
                 {
                     var increasedColourCount = false;
                     if (colour >= currentSolution.colourCount)
@@ -119,7 +119,7 @@ namespace Algorithms
 
             for (int i = 0; i < graph.VerticesKVPs.Length; i++)
             {
-                var colouringsNeighbour = GetPossibleAcyclicColourings(graph, i, currentSolution, bestSolution).Count;
+                var colouringsNeighbour = GetPossibleColourings(graph, i, currentSolution, bestSolution).Count;
                 if (currentSolution.vertexToColour[i] == -1 && (colouringsNeighbour < minColourPossibilities || (colouringsNeighbour == minColourPossibilities && graph.VerticesKVPs[i].Length > maxNeighbourCount)))
                 {
                     maxNeighbourCount = graph.VerticesKVPs[i].Length;
@@ -131,7 +131,7 @@ namespace Algorithms
             return maxVertex;
         }
 
-        private List<int> GetPossibleAcyclicColourings(Graph graph, int vertex, Solution currentSolution, Solution bestSolution)
+        private List<int> GetPossibleColourings(Graph graph, int vertex, Solution currentSolution, Solution bestSolution)
         {
             var possibilities = new List<int>();
             var maximumInclusivePermissibleColour = Math.Min(currentSolution.colourCount, bestSolution.colourCount - 2);

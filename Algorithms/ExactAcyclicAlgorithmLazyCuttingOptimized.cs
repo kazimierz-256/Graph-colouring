@@ -5,7 +5,7 @@ using static Algorithms.Graph;
 
 namespace Algorithms
 {
-    public class ExactAcyclicAlgorithmLazyCuttingOptimized : ISolver
+    public class ExactAcyclicAlgorithm : ISolver
     {
         private class Solution
         {
