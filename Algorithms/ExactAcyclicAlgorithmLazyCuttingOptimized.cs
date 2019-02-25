@@ -5,7 +5,7 @@ using static Algorithms.Graph;
 
 namespace Algorithms
 {
-    public class ExactClassicAlgorithmNoDelLazyCuttingOptimized : ISolver
+    public class ExactAcyclicAlgorithmLazyCuttingOptimized : ISolver
     {
         private class Solution
         {
@@ -26,8 +26,8 @@ namespace Algorithms
         }
 
         public Dictionary<int, int> ColourGraph(Graph graph) => ColourGraph(graph, -1, 1.0);
-        public Dictionary<int, int> ColourGraph(Graph graph, int upperBoundOnNumberOfSteps) => ColourGraph(graph, upperBoundOnNumberOfSteps, 1.0);
-        public Dictionary<int, int> ColourGraph(Graph graph, double alphaRatio) => ColourGraph(graph, -1, alphaRatio);
+        public Dictionary<int, int> ColourGraphApproximately(Graph graph, int upperBoundOnNumberOfSteps) => ColourGraph(graph, upperBoundOnNumberOfSteps, 1.0);
+        public Dictionary<int, int> ColourGraphApproximately(Graph graph, double alphaRatio) => ColourGraph(graph, -1, alphaRatio);
 
         private Dictionary<int, int> ColourGraph(Graph graph, int upperBoundOnNumberOfSteps, double alphaRatio)
         {
@@ -44,6 +44,7 @@ namespace Algorithms
             {
                 initialSolution.vertexToColour[i] = -1;
             }
+
 
             var leftSteps = upperBoundOnNumberOfSteps;
             var solution = Recurse(graph, initialSolution, dummySolution, ref leftSteps, alphaRatio).vertexToColour;
@@ -116,10 +117,16 @@ namespace Algorithms
             var minColourPossibilities = int.MaxValue;
             var maxNeighbourCount = -1;
             var maxVertex = -1;
+            var vertexToPossibleColourings = new Dictionary<int, int>();
+            foreach (var vertexKVP in graph.VerticesKVPs)
+            {
+                vertexToPossibleColourings.Add(vertexKVP.Key, GetPossibleAcyclicColourings(graph, vertexKVP.Key, currentSolution, bestSolution).Count);
+            }
 
             foreach (var vertexKVP in graph.VerticesKVPs)
             {
-                var colouringsNeighbour = GetPossibleAcyclicColourings(graph, vertexKVP.Key, currentSolution, bestSolution).Count;
+                // ensure larger neighbourhood and ensure it is not coloured
+                var colouringsNeighbour = vertexToPossibleColourings[vertexKVP.Key];
                 if (currentSolution.vertexToColour[vertexKVP.Key] == -1 && (colouringsNeighbour < minColourPossibilities || (colouringsNeighbour == minColourPossibilities && vertexKVP.Value.Count > maxNeighbourCount)))
                 {
                     maxNeighbourCount = vertexKVP.Value.Count;
@@ -135,32 +142,77 @@ namespace Algorithms
         {
             var possibilities = new List<int>();
             var maximumInclusivePermissibleColour = Math.Min(currentSolution.colourCount, bestSolution.colourCount - 2);
-            var secondLimitingColourInclusive = graph.VerticesKVPs[vertex].Count;
-            var occupiedColours = new bool[graph.VerticesKVPs[vertex].Count + 1];
+            var occupiedColours = new bool[maximumInclusivePermissibleColour + 1];
             foreach (var neighbour in graph.VerticesKVPs[vertex])
             {
                 if (currentSolution.vertexToColour[neighbour] != -1)
                 {
                     var colour = currentSolution.vertexToColour[neighbour];
                     if (colour < occupiedColours.Length)
-                    {
-                        if (occupiedColours[colour])
-                            secondLimitingColourInclusive -= 1;
-                        else
-                            occupiedColours[colour] = true;
-                    }
+                        occupiedColours[colour] = true;
                 }
             }
-            maximumInclusivePermissibleColour = Math.Min(maximumInclusivePermissibleColour, secondLimitingColourInclusive);
+
             for (int colourCandidate = 0; colourCandidate <= maximumInclusivePermissibleColour; colourCandidate++)
             {
                 if (!occupiedColours[colourCandidate])
                 {
-                    possibilities.Add(colourCandidate);
+                    if (EnsureAcyclicityAndValidity(graph, vertex, colourCandidate, currentSolution))
+                        possibilities.Add(colourCandidate);
                 }
             }
-
             return possibilities;
+        }
+
+        private bool EnsureAcyclicityAndValidity(Graph graph, int vertex, int colourCandidate, Solution currentSolution)
+        {
+            foreach (var neighbour in graph.VerticesKVPs[vertex])
+            {
+                if (currentSolution.vertexToColour[neighbour] != -1)
+                {
+                    var complementaryColour = currentSolution.vertexToColour[neighbour];
+                    foreach (var neighbour2 in graph.VerticesKVPs[neighbour])
+                    {
+                        if (currentSolution.vertexToColour[neighbour2] != -1 && currentSolution.vertexToColour[neighbour2] == colourCandidate)
+                        {
+                            if (neighbour2 != vertex)
+                            {
+                                var exploredVertices = new HashSet<int>() { neighbour, neighbour2 };
+                                if (!Explore(graph, neighbour2, vertex, colourCandidate, complementaryColour, currentSolution, exploredVertices))
+                                    return false;
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        private bool Explore(Graph graph, int alreadyConsidered, int vertex, int colourCandidate, int complementaryColour, Solution currentSolution, HashSet<int> exploredVertices)
+        {
+            foreach (var neighbour in graph.VerticesKVPs[alreadyConsidered])
+            {
+                if (neighbour == vertex)
+                    return false;
+                if (currentSolution.vertexToColour[neighbour] != -1 && !exploredVertices.Contains(neighbour))
+                {
+                    exploredVertices.Add(neighbour);
+                    // looking for odd
+                    if (exploredVertices.Count % 2 == 0 && currentSolution.vertexToColour[neighbour] == colourCandidate)
+                    {
+                        if (!Explore(graph, neighbour, vertex, colourCandidate, complementaryColour, currentSolution, exploredVertices))
+                            return false;
+                    }
+                    // looking for even
+                    else if (exploredVertices.Count % 2 == 1 && currentSolution.vertexToColour[neighbour] == complementaryColour)
+                    {
+                        if (!Explore(graph, neighbour, vertex, colourCandidate, complementaryColour, currentSolution, exploredVertices))
+                            return false;
+                    }
+                    exploredVertices.Remove(neighbour);
+                }
+            }
+            return true;
         }
     }
 }

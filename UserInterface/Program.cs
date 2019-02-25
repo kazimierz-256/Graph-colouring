@@ -14,7 +14,7 @@ namespace UserInterface
             Console.WriteLine("Performance tests:");
             var stopwatch = new Stopwatch();
             var random = new Random(0);
-            for (int n = 50; n < 100; n++)
+            for (int n = 20; n < 100; n++)
             {
                 Console.WriteLine("NEW SIZE");
                 for (double density = 0.05d; density < 1d; density += 0.05d)
@@ -39,10 +39,10 @@ namespace UserInterface
                     //stopwatch.Stop();
                     //Console.WriteLine($"Graph was classically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms (without deleting, lazily)");
 
-                    stopwatch.Restart();
-                    solution = new ExactClassicAlgorithmNoDelLazyCutting().ColourGraph(graph);
-                    stopwatch.Stop();
-                    Console.WriteLine($"Graph was classically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms (without deleting, lazily, cutting)");
+                    //stopwatch.Restart();
+                    //solution = new ExactClassicAlgorithmNoDelLazyCutting().ColourGraph(graph);
+                    //stopwatch.Stop();
+                    //Console.WriteLine($"Graph was classically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms (without deleting, lazily, cutting)");
 
                     stopwatch.Restart();
                     solution = new ExactClassicAlgorithmNoDelLazyCuttingOptimized().ColourGraph(graph);
@@ -64,6 +64,11 @@ namespace UserInterface
                     //stopwatch.Stop();
                     //Console.WriteLine($"Graph was acyclically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms (lazily, cutting)");
 
+                    stopwatch.Restart();
+                    solution = new ExactAcyclicAlgorithmLazyCuttingOptimized().ColourGraph(graph);
+                    stopwatch.Stop();
+                    Console.WriteLine($"Graph was acyclically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms (lazily, cutting, optimized)");
+
                     //stopwatch.Restart();
                     //var alpha = 1.5;
                     //solution = new ExactAcyclicAlgorithmLazyCutting().ColourGraphApproximately(graph, alpha);
@@ -74,6 +79,11 @@ namespace UserInterface
                     //solution = new ExactL21AlgorithmNoDelLazyCutting().ColourGraph(graph);
                     //stopwatch.Stop();
                     //Console.WriteLine($"Graph was L(2,1) coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms (lazily, cutting)");
+
+                    stopwatch.Restart();
+                    solution = new ExactL21AlgorithmNoDelLazyCuttingOptimized().ColourGraph(graph);
+                    stopwatch.Stop();
+                    Console.WriteLine($"Graph was L(2,1) coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms (lazily, cutting, optimized)");
 
                     Console.WriteLine();
                 }

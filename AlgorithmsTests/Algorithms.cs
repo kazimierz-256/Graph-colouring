@@ -24,11 +24,11 @@ namespace AlgorithmsTests
         private void TestGraph(Graph graph, int? expectedChromaticNumber, int? expectedAcyclicNumber)
         {
             // classical tests
-            var solution = new ExactClassicAlgorithmNoDelLazyCutting().ColourGraph(graph);
+            var solution = new ExactClassicAlgorithmNoDelLazyCuttingOptimized().ColourGraph(graph);
             DetailedClassicVerification(graph, solution, expectedChromaticNumber);
 
             // cyclicity tests
-            var acyclicSolution = new ExactAcyclicAlgorithmLazyCutting().ColourGraph(graph);
+            var acyclicSolution = new ExactAcyclicAlgorithmLazyCuttingOptimized().ColourGraph(graph);
             DetailedAcyclicVerification(graph, acyclicSolution, null, expectedAcyclicNumber);
         }
 
