@@ -7,6 +7,16 @@ namespace Algorithms.GraphFactory
 {
     public static class GraphFactory
     {
+        private static int[][] DictionaryToArray(Dictionary<int, HashSet<int>> dictionary)
+        {
+            var array = new int[dictionary.Keys.Count][];
+            foreach (var kvp in dictionary)
+            {
+                array[kvp.Key] = kvp.Value.ToArray();
+            }
+            return array;
+        }
+
         private static void Connect(Dictionary<int, HashSet<int>> edges, int i, int j)
         {
             if (!edges.ContainsKey(i))
@@ -36,7 +46,7 @@ namespace Algorithms.GraphFactory
 
             return new Graph
             {
-                VerticesKVPs = edges
+                VerticesKVPs = DictionaryToArray(edges)
             };
         }
 
@@ -63,7 +73,7 @@ namespace Algorithms.GraphFactory
 
             return new Graph
             {
-                VerticesKVPs = edges
+                VerticesKVPs = DictionaryToArray(edges)
             };
         }
 
@@ -95,7 +105,7 @@ namespace Algorithms.GraphFactory
 
             return new Graph
             {
-                VerticesKVPs = edges
+                VerticesKVPs = DictionaryToArray(edges)
             };
         }
 
@@ -125,7 +135,7 @@ namespace Algorithms.GraphFactory
 
             return new Graph
             {
-                VerticesKVPs = edges
+                VerticesKVPs = DictionaryToArray(edges)
             };
         }
 
@@ -146,7 +156,7 @@ namespace Algorithms.GraphFactory
 
             return new Graph
             {
-                VerticesKVPs = neighbours
+                VerticesKVPs = DictionaryToArray(neighbours)
             };
         }
 
@@ -189,7 +199,7 @@ namespace Algorithms.GraphFactory
 
             return new Graph
             {
-                VerticesKVPs = neighbours
+                VerticesKVPs = DictionaryToArray(neighbours)
             };
         }
     }

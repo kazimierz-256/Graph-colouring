@@ -38,9 +38,9 @@ namespace Algorithms
             var initialSolution = new Solution()
             {
                 colourCount = 0,
-                vertexToColour = new int[graph.VerticesKVPs.Count]
+                vertexToColour = new int[graph.VerticesKVPs.Length]
             };
-            for (int i = 0; i < graph.VerticesKVPs.Count; i++)
+            for (int i = 0; i < graph.VerticesKVPs.Length; i++)
             {
                 initialSolution.vertexToColour[i] = -1;
             }
@@ -65,7 +65,7 @@ namespace Algorithms
                 else
                     upperBoundOnNumberOfSteps -= 1;
             }
-            if (currentSolution.solvedCount < graphToColour.VerticesKVPs.Count)
+            if (currentSolution.solvedCount < graphToColour.VerticesKVPs.Length)
             {
                 // choose a vertex to colour
                 var vertexToColour = ChooseSuitableVertex(graphToColour, currentSolution, bestSolution);
@@ -118,20 +118,18 @@ namespace Algorithms
             var maxNeighbourCount = -1;
             var maxVertex = -1;
             var vertexToPossibleColourings = new Dictionary<int, int>();
-            foreach (var vertexKVP in graph.VerticesKVPs)
-            {
-                vertexToPossibleColourings.Add(vertexKVP.Key, GetPossibleAcyclicColourings(graph, vertexKVP.Key, currentSolution, bestSolution).Count);
-            }
+            for (int i = 0; i < graph.VerticesKVPs.Length; i++)
+                vertexToPossibleColourings.Add(i, GetPossibleAcyclicColourings(graph, i, currentSolution, bestSolution).Count);
 
-            foreach (var vertexKVP in graph.VerticesKVPs)
+            for (int i = 0; i < graph.VerticesKVPs.Length; i++)
             {
                 // ensure larger neighbourhood and ensure it is not coloured
-                var colouringsNeighbour = vertexToPossibleColourings[vertexKVP.Key];
-                if (currentSolution.vertexToColour[vertexKVP.Key] == -1 && (colouringsNeighbour < minColourPossibilities || (colouringsNeighbour == minColourPossibilities && vertexKVP.Value.Count > maxNeighbourCount)))
+                var colouringsNeighbour = vertexToPossibleColourings[i];
+                if (currentSolution.vertexToColour[i] == -1 && (colouringsNeighbour < minColourPossibilities || (colouringsNeighbour == minColourPossibilities && graph.VerticesKVPs[i].Length > maxNeighbourCount)))
                 {
-                    maxNeighbourCount = vertexKVP.Value.Count;
+                    maxNeighbourCount = graph.VerticesKVPs[i].Length;
                     minColourPossibilities = colouringsNeighbour;
-                    maxVertex = vertexKVP.Key;
+                    maxVertex = i;
                 }
             }
 

@@ -34,7 +34,7 @@ namespace AlgorithmsTests
 
         private void DetailedClassicVerification(Graph graph, Dictionary<int, int> solution, int? expectedChromaticNumber)
         {
-            Assert.Equal(graph.VerticesKVPs.Keys.Count, solution.Keys.Count);
+            Assert.Equal(graph.VerticesKVPs.Length, solution.Keys.Count);
             var min = solution.Values.Min();
             var max = solution.Values.Max();
             Assert.Equal(0, min);
@@ -45,7 +45,7 @@ namespace AlgorithmsTests
 
         private void DetailedAcyclicVerification(Graph graph, Dictionary<int, int> solution, Dictionary<int, int> classicSolution = null, int? expectedAcyclicNumber = null)
         {
-            Assert.Equal(graph.VerticesKVPs.Keys.Count, solution.Keys.Count);
+            Assert.Equal(graph.VerticesKVPs.Length, solution.Keys.Count);
             var min = solution.Values.Min();
             var max = solution.Values.Max();
             Assert.Equal(0, min);
@@ -59,11 +59,11 @@ namespace AlgorithmsTests
 
         private void VerifyClassicSolution(Graph graph, Dictionary<int, int> solution)
         {
-            foreach (var vertexKVP in graph.VerticesKVPs)
+            for (int i = 0; i < graph.VerticesKVPs.Length; i++)
             {
-                foreach (var neighbour in vertexKVP.Value)
+                foreach (var neighbour in graph.VerticesKVPs[i])
                 {
-                    Assert.NotEqual(solution[vertexKVP.Key], solution[neighbour]);
+                    Assert.NotEqual(solution[i], solution[neighbour]);
                 }
             }
         }
