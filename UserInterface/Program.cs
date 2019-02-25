@@ -14,7 +14,7 @@ namespace UserInterface
             Console.WriteLine("Performance tests:");
             var stopwatch = new Stopwatch();
             var random = new Random(0);
-            for (int n = 30; n < 100; n++)
+            for (int n = 50; n < 100; n++)
             {
                 Console.WriteLine("NEW SIZE");
                 for (double density = 0.05d; density < 1d; density += 0.05d)
@@ -43,6 +43,11 @@ namespace UserInterface
                     solution = new ExactClassicAlgorithmNoDelLazyCutting().ColourGraph(graph);
                     stopwatch.Stop();
                     Console.WriteLine($"Graph was classically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms (without deleting, lazily, cutting)");
+
+                    stopwatch.Restart();
+                    solution = new ExactClassicAlgorithmNoDelLazyCuttingOptimized().ColourGraph(graph);
+                    stopwatch.Stop();
+                    Console.WriteLine($"Graph was classically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms (without deleting, lazily, cutting, optimized)");
 
                     //stopwatch.Restart();
                     //solution = new ExactAcyclicAlgorithm().ColourGraph(graph);
