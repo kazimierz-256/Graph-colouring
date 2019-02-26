@@ -67,10 +67,10 @@ namespace Algorithms
             if (currentSolution.solvedCount < graphToColour.VerticesKVPs.Length)
             {
                 // choose a vertex to colour
-                var vertexToColour = ChooseSuitableVertex(graphToColour, currentSolution, bestSolution);
+                var vertexToColour = ChooseSuitableVertex(graphToColour, currentSolution, bestSolution, out var colouringPossibilities);
 
                 // for in possible colours
-                foreach (var colour in GetPossibleAcyclicColourings(graphToColour, vertexToColour, currentSolution, bestSolution))
+                foreach (var colour in colouringPossibilities)
                 {
                     var originalColourCount = currentSolution.colourCount;
                     if (colour >= currentSolution.colourCount)
@@ -107,31 +107,34 @@ namespace Algorithms
         }
 
         // may return -1 if there is no suitable vertex
-        private int ChooseSuitableVertex(Graph graph, Solution currentSolution, Solution bestSolution)
+        private int ChooseSuitableVertex(Graph graph, Solution currentSolution, Solution bestSolution, out List<int> bestColouring)
         {
             var minColourPossibilities = int.MaxValue;
             var maxNeighbourCount = -1;
             var maxVertex = -1;
-            var vertexToPossibleColourings = new Dictionary<int, int>();
-            for (int i = 0; i < graph.VerticesKVPs.Length; i++)
-                vertexToPossibleColourings.Add(i, GetPossibleAcyclicColourings(graph, i, currentSolution, bestSolution).Count);
+            bestColouring = null;
 
             for (int i = 0; i < graph.VerticesKVPs.Length; i++)
             {
-                // ensure larger neighbourhood and ensure it is not coloured
-                var colouringsNeighbour = vertexToPossibleColourings[i];
-                if (currentSolution.vertexToColour[i] == -1 && (colouringsNeighbour < minColourPossibilities || (colouringsNeighbour == minColourPossibilities && graph.VerticesKVPs[i].Length > maxNeighbourCount)))
+                var colouringsNeighbour = GetPossibleL21Colourings(graph, i, currentSolution, bestSolution);
+                if (colouringsNeighbour.Count == 0)
+                {
+                    bestColouring = colouringsNeighbour;
+                    return i;
+                }
+                if (currentSolution.vertexToColour[i] == -1 && (colouringsNeighbour.Count < minColourPossibilities || (colouringsNeighbour.Count == minColourPossibilities && graph.VerticesKVPs[i].Length > maxNeighbourCount)))
                 {
                     maxNeighbourCount = graph.VerticesKVPs[i].Length;
-                    minColourPossibilities = colouringsNeighbour;
+                    minColourPossibilities = colouringsNeighbour.Count;
                     maxVertex = i;
+                    bestColouring = colouringsNeighbour;
                 }
             }
 
             return maxVertex;
         }
 
-        private List<int> GetPossibleAcyclicColourings(Graph graph, int vertex, Solution currentSolution, Solution bestSolution)
+        private List<int> GetPossibleL21Colourings(Graph graph, int vertex, Solution currentSolution, Solution bestSolution)
         {
             var possibilities = new List<int>();
             var maximumInclusivePermissibleColour = Math.Min(currentSolution.colourCount + 1, bestSolution.colourCount - 2);
