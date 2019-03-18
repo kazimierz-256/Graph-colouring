@@ -167,6 +167,7 @@ namespace Algorithms
 
         private bool EnsureAcyclicityAndValidity(Graph graph, int vertex, int colourCandidate, Solution currentSolution)
         {
+            // TODO: limit depth?
             foreach (var neighbour in graph.VerticesKVPs[vertex])
             {
                 if (currentSolution.vertexToColour[neighbour] != -1)
