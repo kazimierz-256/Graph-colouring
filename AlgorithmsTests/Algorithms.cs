@@ -27,7 +27,7 @@ namespace AlgorithmsTests
             var solution = new ExactClassicAlgorithm().ColourGraph(graph);
             DetailedClassicVerification(graph, solution, expectedChromaticNumber);
 
-            // cyclicity tests
+            // acyclicity tests
             var acyclicSolution = new ExactAcyclicAlgorithm().ColourGraph(graph);
             DetailedAcyclicVerification(graph, acyclicSolution, null, expectedAcyclicNumber);
         }

@@ -45,6 +45,8 @@ namespace Algorithms
                 initialSolution.vertexToColour[i] = -1;
             }
 
+            graph = graph.CloneNeighboursSorted(v => graph.VerticesKVPs[v].Length);
+
             var leftSteps = upperBoundOnNumberOfSteps;
             var solution = Recurse(graph, initialSolution, dummySolution, ref leftSteps, alphaRatio).vertexToColour;
             var dictionary = new Dictionary<int, int>();

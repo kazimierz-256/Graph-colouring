@@ -45,6 +45,7 @@ namespace Algorithms
                 initialSolution.vertexToColour[i] = -1;
             }
 
+            graph = graph.CloneNeighboursSorted(v => -graph.VerticesKVPs[v].Length);
 
             var leftSteps = upperBoundOnNumberOfSteps;
             var solution = Recurse(graph, initialSolution, dummySolution, ref leftSteps, alphaRatio).vertexToColour;
@@ -167,9 +168,27 @@ namespace Algorithms
 
         private bool EnsureAcyclicityAndValidity(Graph graph, int vertex, int colourCandidate, Solution currentSolution)
         {
-            // TODO: limit depth?
+            var coloursOccupiedByNeighbours = new int[currentSolution.colourCount];
+            var neighboursToConsider = new int[graph.VerticesKVPs[vertex].Length];
+            var neighbourToConsiderCount = 0;
+
             foreach (var neighbour in graph.VerticesKVPs[vertex])
             {
+                var colour = currentSolution.vertexToColour[neighbour];
+                if (colour != -1)
+                {
+                    coloursOccupiedByNeighbours[colour] += 1;
+                    if (coloursOccupiedByNeighbours[colour] > 1)
+                    {
+                        neighboursToConsider[neighbourToConsiderCount] = neighbour;
+                        neighbourToConsiderCount += 1;
+                    }
+                }
+            }
+            var coloursOccupiedByNeighboursCovered = new int[currentSolution.colourCount * currentSolution.colourCount];
+            for (int i = 0; i < neighbourToConsiderCount; i++)
+            {
+                var neighbour = neighboursToConsider[i];
                 if (currentSolution.vertexToColour[neighbour] != -1)
                 {
                     var complementaryColour = currentSolution.vertexToColour[neighbour];
@@ -180,7 +199,7 @@ namespace Algorithms
                             if (neighbour2 != vertex)
                             {
                                 var exploredVertices = new HashSet<int>() { neighbour, neighbour2 };
-                                if (!Explore(graph, neighbour2, vertex, colourCandidate, complementaryColour, currentSolution, exploredVertices))
+                                if (FoundCycleBicolourable(graph, neighbour2, vertex, colourCandidate, complementaryColour, currentSolution, exploredVertices))
                                     return false;
                             }
                         }
@@ -190,31 +209,31 @@ namespace Algorithms
             return true;
         }
 
-        private bool Explore(Graph graph, int alreadyConsidered, int vertex, int colourCandidate, int complementaryColour, Solution currentSolution, HashSet<int> exploredVertices)
+        private bool FoundCycleBicolourable(Graph graph, int alreadyConsidered, int vertex, int colourCandidate, int complementaryColour, Solution currentSolution, HashSet<int> exploredVertices)
         {
             foreach (var neighbour in graph.VerticesKVPs[alreadyConsidered])
             {
                 if (neighbour == vertex)
-                    return false;
+                    return true;
                 if (currentSolution.vertexToColour[neighbour] != -1 && !exploredVertices.Contains(neighbour))
                 {
                     exploredVertices.Add(neighbour);
                     // looking for odd
                     if (exploredVertices.Count % 2 == 0 && currentSolution.vertexToColour[neighbour] == colourCandidate)
                     {
-                        if (!Explore(graph, neighbour, vertex, colourCandidate, complementaryColour, currentSolution, exploredVertices))
-                            return false;
+                        if (FoundCycleBicolourable(graph, neighbour, vertex, colourCandidate, complementaryColour, currentSolution, exploredVertices))
+                            return true;
                     }
                     // looking for even
                     else if (exploredVertices.Count % 2 == 1 && currentSolution.vertexToColour[neighbour] == complementaryColour)
                     {
-                        if (!Explore(graph, neighbour, vertex, colourCandidate, complementaryColour, currentSolution, exploredVertices))
-                            return false;
+                        if (FoundCycleBicolourable(graph, neighbour, vertex, colourCandidate, complementaryColour, currentSolution, exploredVertices))
+                            return true;
                     }
                     exploredVertices.Remove(neighbour);
                 }
             }
-            return true;
+            return false;
         }
     }
 }
