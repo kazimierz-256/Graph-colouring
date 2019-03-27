@@ -30,13 +30,6 @@ namespace UserInterface
                     stopwatch.Stop();
                     Console.WriteLine($"Graph was classically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms");
 
-                    var newGraph = graph.CloneWithoutSmallestVertex(degree => degree < solution.Max(kvp => kvp.Value + 1));
-                    stopwatch.Restart();
-                    solution = new ExactClassicAlgorithm().ColourGraph(newGraph);
-                    stopwatch.Stop();
-                    if (solution.Count > 0)
-                        Console.WriteLine($"miniG was classically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms size {newGraph.VerticesKVPs.Length}");
-
                     //stopwatch.Restart();
                     //solution = new ExactAcyclicAlgorithm().ColourGraph(graph);
                     //stopwatch.Stop();
