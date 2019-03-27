@@ -4,4 +4,10 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Archived\**" />
+    <EmbeddedResource Remove="Archived\**" />
+    <None Remove="Archived\**" />
+  </ItemGroup>
+
 </Project>

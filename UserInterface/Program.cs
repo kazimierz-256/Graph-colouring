@@ -14,7 +14,7 @@ namespace UserInterface
             Console.WriteLine("Performance tests:");
             var stopwatch = new Stopwatch();
             var random = new Random(1);
-            for (int n = 36; n < 1000; n++)
+            for (int n = 60; n < 1000; n++)
             {
                 Console.WriteLine("NEW SIZE");
                 Console.WriteLine();
@@ -25,15 +25,22 @@ namespace UserInterface
 
                     Console.WriteLine($"Size {n}, density {density:f2}");
 
-                    //stopwatch.Restart();
-                    //solution = new ExactClassicAlgorithm().ColourGraph(graph);
-                    //stopwatch.Stop();
-                    //Console.WriteLine($"Graph was classically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms");
-
                     stopwatch.Restart();
-                    solution = new ExactAcyclicAlgorithm().ColourGraph(graph);
+                    solution = new ExactClassicAlgorithm().ColourGraph(graph);
                     stopwatch.Stop();
-                    Console.WriteLine($"Graph was acyclically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms"); stopwatch.Restart();
+                    Console.WriteLine($"Graph was classically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms");
+
+                    var newGraph = graph.CloneWithoutSmallestVertex(degree => degree < solution.Max(kvp => kvp.Value + 1));
+                    stopwatch.Restart();
+                    solution = new ExactClassicAlgorithm().ColourGraph(newGraph);
+                    stopwatch.Stop();
+                    if (solution.Count > 0)
+                        Console.WriteLine($"miniG was classically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms size {newGraph.VerticesKVPs.Length}");
+
+                    //stopwatch.Restart();
+                    //solution = new ExactAcyclicAlgorithm().ColourGraph(graph);
+                    //stopwatch.Stop();
+                    //Console.WriteLine($"Graph was acyclically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms"); stopwatch.Restart();
 
                     //stopwatch.Restart();
                     //solution = new ExactAcyclicAlgorithmDepthLimit().ColourGraphApproximatelyDepth(graph, 3);
