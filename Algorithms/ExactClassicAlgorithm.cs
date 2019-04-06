@@ -128,10 +128,15 @@ namespace Algorithms
                     bestColouring = colouringsNeighbour;
                     return i;
                 }
-                if (currentSolution.vertexToColour[i] == -1 && (colouringsNeighbour.Count < minColourPossibilities || (colouringsNeighbour.Count == minColourPossibilities && graph.VerticesKVPs[i].Length > maxNeighbourCount)))
+                var score = colouringsNeighbour.Count;
+                if (colouringsNeighbour[colouringsNeighbour.Count - 1] == currentSolution.colourCount)
+                {
+                    score += int.MaxValue / 2;
+                }
+                if (currentSolution.vertexToColour[i] == -1 && (score < minColourPossibilities || (score == minColourPossibilities && graph.VerticesKVPs[i].Length > maxNeighbourCount)))
                 {
                     maxNeighbourCount = graph.VerticesKVPs[i].Length;
-                    minColourPossibilities = colouringsNeighbour.Count;
+                    minColourPossibilities = score;
                     maxVertex = i;
                     bestColouring = colouringsNeighbour;
                 }

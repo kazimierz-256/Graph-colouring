@@ -14,7 +14,7 @@ namespace UserInterface
             Console.WriteLine("Performance tests:");
             var stopwatch = new Stopwatch();
             var random = new Random(1);
-            for (int n = 60; n < 1000; n++)
+            for (int n = 70; n < 1000; n++)
             {
                 Console.WriteLine("NEW SIZE");
                 Console.WriteLine();
@@ -31,7 +31,7 @@ namespace UserInterface
                     Console.WriteLine($"Graph was classically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms");
 
                     //stopwatch.Restart();
-                    //solution = new ExactAcyclicAlgorithm().ColourGraph(graph);
+                    //solution = new ExactAcyclicAlgorithm().ColourGraphApproximately(graph, 1.2);
                     //stopwatch.Stop();
                     //Console.WriteLine($"Graph was acyclically coloured by using {solution.Values.Max() + 1} colours in {stopwatch.Elapsed.TotalMilliseconds:f3}ms"); stopwatch.Restart();
 
