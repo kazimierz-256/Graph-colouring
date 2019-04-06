@@ -20,7 +20,7 @@ namespace UserInterface
                 Console.WriteLine();
                 for (double density = 0.05d; density < 1; density += 0.05d)
                 {
-                    var graph = GraphFactory.GenerateRandom(n, density, random.Next());
+                    var graph = GraphFactory.GenerateRandom2(n, density, random.Next());
                     var solution = new Dictionary<int, int>();
 
                     Console.WriteLine($"Size {n}, density {density:f2}");

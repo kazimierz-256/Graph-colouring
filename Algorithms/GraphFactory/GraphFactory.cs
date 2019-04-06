@@ -202,5 +202,39 @@ namespace Algorithms.GraphFactory
                 VerticesKVPs = DictionaryToArray(neighbours)
             };
         }
+
+        public static Graph GenerateRandom2(int n, double density, int generatingSeed)
+        {
+            var random = new Random(generatingSeed);
+            var neighbours = new Dictionary<int, HashSet<int>>();
+            var targetEdges = Math.Floor(n * (n - 1) / 2 * density);
+            var edges = 0;
+            for (int i = 0; i < n; i++)
+            {
+                    neighbours.Add(i, new HashSet<int>());
+            }
+            while (edges < targetEdges)
+            {
+                var i = random.Next(0, n - 1);
+                var j = random.Next(0, n - 1);
+                if (j == i)
+                {
+                    continue;
+                }
+                if (!neighbours[i].Contains(j))
+                {
+                    edges += 1;
+
+                    // add undirected edge
+                    neighbours[i].Add(j);
+                    neighbours[j].Add(i);
+                }
+            }
+
+            return new Graph
+            {
+                VerticesKVPs = DictionaryToArray(neighbours)
+            };
+        }
     }
 }
