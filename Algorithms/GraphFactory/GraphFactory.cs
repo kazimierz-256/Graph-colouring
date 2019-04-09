@@ -215,8 +215,8 @@ namespace Algorithms.GraphFactory
             }
             while (edges < targetEdges)
             {
-                var i = random.Next(0, n - 1);
-                var j = random.Next(0, n - 1);
+                var i = random.Next(0, n);
+                var j = random.Next(0, n);
                 if (j == i)
                 {
                     continue;
