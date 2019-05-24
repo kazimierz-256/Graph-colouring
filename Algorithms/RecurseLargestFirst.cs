@@ -7,7 +7,7 @@ using static Algorithms.Graph;
 namespace Algorithms
 {
 
-    class RecurseLargestFirst
+    public class RecurseLargestFirst
     {
 
         private class Solution
@@ -28,15 +28,9 @@ namespace Algorithms
             }
         }
 
-        //public Dictionary<int, int> ColourGraph(Graph graph) => ColourGraph(graph);
-
         public Dictionary<int, int> ColourGraph(Graph graph)
         {
-            var dummySolution = new Solution()
-            {
-                colourCount = int.MaxValue,
-            };
-            var initialSolution = new Solution()
+            var dummySolution1 = new Solution()
             {
                 colourCount = 0,
                 vertexToColour = new int[graph.VerticesKVPs.Length]
@@ -44,38 +38,46 @@ namespace Algorithms
 
             for (int i = 0; i < graph.VerticesKVPs.Length; i++)
             {
-                initialSolution.vertexToColour[i] = -1;
+                dummySolution1.vertexToColour[i] = -1;
             }
-            int upperBoundOnNumberOfColours = 5;
-            int UpperChromaticNumber = 2;
 
-            while (!IsPossible(graph, dummySolution, UpperChromaticNumber))
+            int upperBoundOnNumberOfColours = 0;
+            int UpperChromaticNumber = 4;
+
+            while (!IsPossible(graph, dummySolution1, UpperChromaticNumber))
             {
                 UpperChromaticNumber = 2 * UpperChromaticNumber;
             }
 
             int DownChromaticNumber = UpperChromaticNumber / 2;
             bool IsRight = true;
-            if (IsPossible(graph, dummySolution, UpperChromaticNumber - 1) == false)
+            if (IsPossible(graph, dummySolution1, UpperChromaticNumber - 1) == false)
             {
                 IsRight = false;
-                upperBoundOnNumberOfColours = UpperChromaticNumber;
+                dummySolution1 = Recurse(graph, dummySolution1, upperBoundOnNumberOfColours);
+
             }
             while (IsRight)
             {
+
                 upperBoundOnNumberOfColours = (UpperChromaticNumber + DownChromaticNumber) / 2;
-                if (IsPossible(graph, dummySolution, upperBoundOnNumberOfColours) == true && IsPossible(graph, dummySolution, upperBoundOnNumberOfColours - 1) == false)
-                    IsRight = false;
-                else if (IsPossible(graph, dummySolution, upperBoundOnNumberOfColours) == true && IsPossible(graph, dummySolution, upperBoundOnNumberOfColours - 1) == true)
-                    DownChromaticNumber = (UpperChromaticNumber + upperBoundOnNumberOfColours) / 2;
-                //else if (IsPossible(graph, dummySolution, upperBoundOnNumberOfColours) == true)
+
+                if (IsPossible(graph, dummySolution1, upperBoundOnNumberOfColours) == true && IsPossible(graph, dummySolution1, upperBoundOnNumberOfColours - 1) == false)
+                {
+                    dummySolution1 = Recurse(graph, dummySolution1, upperBoundOnNumberOfColours);
+
+                    break;
+                }
+
+                if (IsPossible(graph, dummySolution1, upperBoundOnNumberOfColours) == true && IsPossible(graph, dummySolution1, upperBoundOnNumberOfColours - 1) == true)
+                    UpperChromaticNumber = (upperBoundOnNumberOfColours);
                 else
-                    UpperChromaticNumber = (DownChromaticNumber + upperBoundOnNumberOfColours) / 2;
+                    DownChromaticNumber = (upperBoundOnNumberOfColours);
             }
 
 
 
-            var solution = Recurse(graph, initialSolution, upperBoundOnNumberOfColours).vertexToColour;
+            var solution = dummySolution1.vertexToColour;
             var dictionary = new Dictionary<int, int>();
             for (int i = 0; i < solution.Length; i++)
             {
@@ -90,11 +92,11 @@ namespace Algorithms
             double BorderValue = Math.Pow(n, (1 - 1 / (n - 1)));
             var BestOption = ChooseSuitableVertex(graph, currentSolution);
             Solution solution = ChooseBestNeighbour(graph, currentSolution, BestOption, BorderValue);
-
-            while (!IsGraphColored(currentSolution))
+            if (solution.colourCount > maxColour) return false;
+            while (!IsGraphColored(solution))
             {
-                BestOption = ChooseSuitableVertex(graph, currentSolution);
-                solution = ChooseBestNeighbour(graph, currentSolution, BestOption, BorderValue);
+                BestOption = ChooseSuitableVertex(graph, solution);
+                solution = ChooseBestNeighbour(graph, solution, BestOption, BorderValue);
                 if (solution.colourCount > maxColour) return false;
             }
             return true;
@@ -104,16 +106,16 @@ namespace Algorithms
         //To w dokuentacji to algorytm b
         private Solution Recurse(Graph graphToColour, Solution currentSolution, int PossibleColoring)
         {
-            double n = PossibleColoring;
+            double n = graphToColour.VerticesKVPs.Length;
             double BorderValue = Math.Pow(n, (1 - 1 / (n - 1)));
             var BestOption = ChooseSuitableVertex(graphToColour, currentSolution);
 
             Solution solution = ChooseBestNeighbour(graphToColour, currentSolution, BestOption, BorderValue);
 
-            while (!IsGraphColored(currentSolution))
+            while (!IsGraphColored(solution))
             {
-                BestOption = ChooseSuitableVertex(graphToColour, currentSolution);
-                solution = ChooseBestNeighbour(graphToColour, currentSolution, BestOption, BorderValue);
+                BestOption = ChooseSuitableVertex(graphToColour, solution);
+                solution = ChooseBestNeighbour(graphToColour, solution, BestOption, BorderValue);
             }
 
             return solution;
@@ -140,7 +142,7 @@ namespace Algorithms
                 count = 0;
                 for (int j = 0; j < graph.VerticesKVPs[i].Length; j++)
                 {
-                    if (currentSolution.vertexToColour[i] == -1 && currentSolution.vertexToColour[j] == -1)
+                    if (currentSolution.vertexToColour[i] == -1 && currentSolution.vertexToColour[graph.VerticesKVPs[i][j]] == -1)
                     {
                         count++;
                         if (count > maxNeighbourCount)
@@ -157,23 +159,53 @@ namespace Algorithms
 
         private Solution ChooseBestNeighbour(Graph graph, Solution currentSolution, int BestOption, double borderValue)
         {
-            Solution solution = currentSolution;
+            Solution solution = currentSolution.DeepClone();
+
+
+            if (BestOption == -1)
+            {
+                int colourCandidate = 1;
+                for (int i = 0; i < graph.VerticesKVPs.Length; i++)
+                {
+                    colourCandidate = 1;
+                    if (solution.vertexToColour[i] == -1)
+                    {
+                        while (!EnsureAcyclicityAndValidity(graph, i, colourCandidate, solution))
+                        {
+                            colourCandidate++;
+                        }
+                        solution.vertexToColour[i] = colourCandidate;
+
+                        if (colourCandidate > solution.colourCount)
+                        {
+                            solution.colourCount = colourCandidate;
+                        }
+
+                    }
+                }
+                return solution;
+            }
+
             var maxNeighbourCount = 0;
-            var maxVertex = -1;
-            //bestColouring = null;
             var count = -1;
             var BestNeighbour = -1;
-            // var Temp = graph.VerticesKVPs[BestOption];  //.Intersect(graph.VerticesKVPs[i]);
+
             List<int> Temp = new List<int>();
             for (int i = 0; i < graph.VerticesKVPs[BestOption].Length; i++) //znajduje niepokolorowanych sasiadow
             {
-                if (currentSolution.vertexToColour[graph.VerticesKVPs[BestOption][i]] == -1)
+                if (solution.vertexToColour[graph.VerticesKVPs[BestOption][i]] == -1)
                 {
                     Temp.Add(graph.VerticesKVPs[BestOption][i]);
                 }
             }
 
             int[] PossibleNeighours = Temp.ToArray();
+
+            if (PossibleNeighours.Length < borderValue)
+            {
+                solution = BruteForce(graph, PossibleNeighours, BestOption, solution);
+                return solution;
+            }
 
             do
             {
@@ -183,24 +215,27 @@ namespace Algorithms
                     count = 0;
                     for (int j = 0; j < PossibleNeighours.Length; j++)
                     {
-                        if (IsNeighbour(graph, currentSolution, PossibleNeighours[i], PossibleNeighours[j]))
+                        if (IsNeighbour(graph, solution, PossibleNeighours[i], PossibleNeighours[j]))
                         {
                             count++;
                             if (count > maxNeighbourCount)
                             {
                                 maxNeighbourCount = count;
-                                BestNeighbour = j;
+                                BestNeighbour = PossibleNeighours[i];
                             }
                         }
                     }
-                    //[0].Intersect(matrix[1]);
                 }
-                //PossibleNeighours = PossibleNeighours.Intersect(graph.VerticesKVPs[BestNeighbour]);
-                PossibleNeighours = PossibleNeighours.Intersect(graph.VerticesKVPs[BestNeighbour]).ToArray();
+
+                if (BestNeighbour != -1)
+                {
+                    PossibleNeighours = PossibleNeighours.Intersect(graph.VerticesKVPs[BestNeighbour]).ToArray();
+                }
+                else BestNeighbour = BestOption;
             }
-            while (maxNeighbourCount >= borderValue);
+            while (maxNeighbourCount > borderValue);
             solution = BruteForce(graph, PossibleNeighours, BestNeighbour, solution);
-            // while (BestVertexNeighbers(graph, currentSolution, BestOption, neighbours) >)
+
 
             return solution;
         }
@@ -217,7 +252,7 @@ namespace Algorithms
 
         private Solution BruteForce(Graph graph, int[] vertexsToColour, int center, Solution solution)
         {
-            int smallestColour = 0;
+            int smallestColour = 1;
 
             while (!EnsureAcyclicityAndValidity(graph, center, smallestColour, solution))
             {
@@ -225,18 +260,22 @@ namespace Algorithms
             }
 
             solution.vertexToColour[center] = smallestColour;
+            if (smallestColour > solution.colourCount)
+            {
+                solution.colourCount = smallestColour;
+            }
+            smallestColour = 1;
 
             for (int i = 0; i < vertexsToColour.Length; i++)
             {
-                smallestColour = 0;
-                if (EnsureAcyclicityAndValidity(graph, vertexsToColour[i], smallestColour, solution)) //tutaj skonczylem
+                if (EnsureAcyclicityAndValidity(graph, vertexsToColour[i], smallestColour, solution))
                 {
                     solution.vertexToColour[vertexsToColour[i]] = smallestColour;
                     if (solution.colourCount < smallestColour)
                     {
                         solution.colourCount = smallestColour;
                     }
-                    smallestColour = 0;
+                    smallestColour = 1;
                 }
                 else
                 {
@@ -252,7 +291,7 @@ namespace Algorithms
 
         private bool EnsureAcyclicityAndValidity(Graph graph, int vertex, int colourCandidate, Solution currentSolution)
         {
-            var coloursOccupiedByNeighbours = new int[currentSolution.colourCount];
+            var coloursOccupiedByNeighbours = new int[currentSolution.colourCount + 1];
             var neighboursToConsider = new int[graph.VerticesKVPs[vertex].Length];
             var neighbourToConsiderCount = 0;
 
@@ -261,6 +300,8 @@ namespace Algorithms
                 var colour = currentSolution.vertexToColour[neighbour];
                 if (colour != -1)
                 {
+                    if (colour == colourCandidate)
+                        return false;
                     coloursOccupiedByNeighbours[colour] += 1;
                     if (coloursOccupiedByNeighbours[colour] > 1)
                     {
@@ -319,8 +360,6 @@ namespace Algorithms
             }
             return false;
         }
-
-
 
     }
 }
