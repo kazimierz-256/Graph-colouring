@@ -31,21 +31,24 @@ namespace UserInterface
             var densityRange = Enumerable.Range(0, rangeCount).Select(number => Math.Cos(Math.PI * ((2 * number + 1) / (2d * rangeCount))));
 
             Console.WriteLine("Performance tests:");
-            //var random = new Random(1);
-            //foreach (var n in nRange)
-            //{
-            //    Console.WriteLine($"NEW SIZE {n}");
-            //    Console.WriteLine();
-            //    foreach (var density in densityRange)
-            //    {
-            //        Console.WriteLine($"  NEW DENSITY {density}");
+#if false
+            var random = new Random(1);
+            foreach (var n in nRange)
+            {
+                Console.WriteLine($"NEW SIZE {n}");
+                Console.WriteLine();
+                foreach (var density in densityRange)
+                {
+                    Console.WriteLine($"  NEW DENSITY {density}");
 
                     // IMPORTANT2 the problem
-                    //var graph = GraphFactory.GenerateRandom2(n, density, random.Next());
-                    var graph2 = Reader.ParseGraph("flat300_28_0");
-                    PerformTestGetCSVResults(graph2);
-            //    }
-            //}
+                    var graph = GraphFactory.GenerateRandom2(n, density, random.Next());
+                }
+            }
+#else
+            var graph2 = Reader.ParseGraph("flat300_28_0");
+            PerformTestGetCSVResults(graph2);
+#endif
 
             string PerformTestGetCSVResults(Graph graph)
             {
@@ -80,7 +83,7 @@ namespace UserInterface
                 stopwatch.Restart();
                 generateNewAlgorithmAndSolve(PerformanceReport, graph);
                 stopwatch.Stop();
-                
+
                 // mark the end of computation time
                 PerformanceReport(null, new PerformanceReport()
                 {
