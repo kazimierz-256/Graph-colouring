@@ -1,6 +1,7 @@
 ﻿using Algorithms.Solver;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using static Algorithms.Graph;
 
 namespace Algorithms
@@ -24,7 +25,8 @@ namespace Algorithms
                 };
             }
         }
-
+        private Stopwatch stopwatch = new Stopwatch();
+        public event EventHandler<PerformanceReport> NewBestSolutionFound;
         public Dictionary<int, int> ColourGraph(Graph graph) => ColourGraph(graph, -1, 1.0, -1);
         public Dictionary<int, int> ColourGraphApproximately(Graph graph, int upperBoundOnNumberOfSteps) => ColourGraph(graph, upperBoundOnNumberOfSteps, 1.0, -1);
         public Dictionary<int, int> ColourGraphApproximatelyDepth(Graph graph, int depth) => ColourGraph(graph, -1, 1.0, depth);
@@ -32,6 +34,7 @@ namespace Algorithms
 
         private Dictionary<int, int> ColourGraph(Graph graph, int upperBoundOnNumberOfSteps, double alphaRatio, int maxDepth)
         {
+            stopwatch.Restart();
             var dummySolution = new Solution()
             {
                 colourCount = int.MaxValue,
@@ -54,6 +57,7 @@ namespace Algorithms
             {
                 dictionary.Add(i, solution[i]);
             }
+            stopwatch.Stop();
             return dictionary;
         }
 
@@ -107,6 +111,11 @@ namespace Algorithms
                     throw new Exception("Proposed solution is not better");
                 // warning! there may be vertices with negative colourings!
                 bestSolution = currentSolution.DeepClone();
+                NewBestSolutionFound.Invoke(null, new PerformanceReport()
+                {
+                    minimalNumberOfColoursUsed = bestSolution.colourCount,
+                    elapsedProcessorTime = stopwatch.Elapsed
+                });
             }
 
             return bestSolution;

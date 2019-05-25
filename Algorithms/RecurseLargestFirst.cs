@@ -1,13 +1,14 @@
 ﻿using Algorithms.Solver;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using static Algorithms.Graph;
 
 namespace Algorithms
 {
 
-    public class RecurseLargestFirst
+    public class RecurseLargestFirst : ISolver
     {
 
         private class Solution
@@ -27,9 +28,12 @@ namespace Algorithms
                 };
             }
         }
+        private Stopwatch stopwatch = new Stopwatch();
+        public event EventHandler<PerformanceReport> NewBestSolutionFound;
 
         public Dictionary<int, int> ColourGraph(Graph graph)
         {
+            stopwatch.Restart();
             var dummySolution1 = new Solution()
             {
                 colourCount = 0,
@@ -83,6 +87,7 @@ namespace Algorithms
             {
                 dictionary.Add(i, solution[i]);
             }
+            stopwatch.Stop();
             return dictionary;
         }
         //Alg c

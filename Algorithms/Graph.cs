@@ -7,8 +7,21 @@ namespace Algorithms
     // undirected graph without loops
     public class Graph
     {
+        public string graphName = string.Empty;
         public int[][] VerticesKVPs;
 
+
+        public override string ToString()
+        {
+            if (graphName == string.Empty)
+            {
+                return $"unnamed-{VerticesKVPs.Length}-{VerticesKVPs.Sum(vertex => vertex.Count()) / 2}";
+            }
+            else
+            {
+                return $"{graphName}-{VerticesKVPs.Length}-{VerticesKVPs.Sum(vertex => vertex.Count()) / 2}";
+            }
+        }
 
         public Graph CloneNeighboursSorted(Func<int, int> evaluator)
         {

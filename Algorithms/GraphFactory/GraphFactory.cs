@@ -46,6 +46,7 @@ namespace Algorithms.GraphFactory
 
             return new Graph
             {
+                graphName = "Peterson",
                 VerticesKVPs = DictionaryToArray(edges)
             };
         }
@@ -73,6 +74,7 @@ namespace Algorithms.GraphFactory
 
             return new Graph
             {
+                graphName = "GenerateGruenbaums",
                 VerticesKVPs = DictionaryToArray(edges)
             };
         }
@@ -105,6 +107,7 @@ namespace Algorithms.GraphFactory
 
             return new Graph
             {
+                graphName = "5RegularClebsch",
                 VerticesKVPs = DictionaryToArray(edges)
             };
         }
@@ -135,6 +138,7 @@ namespace Algorithms.GraphFactory
 
             return new Graph
             {
+                graphName = "CliquesConnectedByChain",
                 VerticesKVPs = DictionaryToArray(edges)
             };
         }
@@ -156,6 +160,7 @@ namespace Algorithms.GraphFactory
 
             return new Graph
             {
+                graphName = "Cycle",
                 VerticesKVPs = DictionaryToArray(neighbours)
             };
         }
@@ -199,6 +204,7 @@ namespace Algorithms.GraphFactory
 
             return new Graph
             {
+                graphName = "Random",
                 VerticesKVPs = DictionaryToArray(neighbours)
             };
         }
@@ -211,7 +217,7 @@ namespace Algorithms.GraphFactory
             var edges = 0;
             for (int i = 0; i < n; i++)
             {
-                    neighbours.Add(i, new HashSet<int>());
+                neighbours.Add(i, new HashSet<int>());
             }
             while (edges < targetEdges)
             {
@@ -233,6 +239,7 @@ namespace Algorithms.GraphFactory
 
             return new Graph
             {
+                graphName = "Random2",
                 VerticesKVPs = DictionaryToArray(neighbours)
             };
         }
