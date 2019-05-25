@@ -20,29 +20,41 @@ namespace UserInterface
             var algorithmDescription = string.Empty;
             Dictionary<int, int> generateNewAlgorithmAndSolve(EventHandler<PerformanceReport> performanceReport, Graph graph)
             {
-                var algorithm = new ExactClassicAlgorithm();
+                var algorithm = new ExactAcyclicAlgorithmDepthLimit();
                 algorithmDescription = "acyclic";
                 algorithm.NewBestSolutionFound += performanceReport;
                 return algorithm.ColourGraph(graph);
             }
 
-            var nRange = Enumerable.Range(24, 6);
+            var nRange = Enumerable.Range(24, 60);
             var rangeCount = 10;
-            var densityRange = Enumerable.Range(0, rangeCount).Select(number => Math.Cos(Math.PI * ((2 * number + 1) / (2d * rangeCount))));
+            var densityRange = Enumerable.Range(0, rangeCount).Select(number => .5d - .5d * Math.Cos(Math.PI * ((2 * number + 1) / (2d * rangeCount))));
 
             Console.WriteLine("Performance tests:");
-#if false
+#if true
             var random = new Random(1);
             foreach (var n in nRange)
             {
-                Console.WriteLine($"NEW SIZE {n}");
                 Console.WriteLine();
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    Console.WriteLine();
                 foreach (var density in densityRange)
                 {
-                    Console.WriteLine($"  NEW DENSITY {density}");
-
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    Console.Write($"New random graph benchmark. Vertices ");
+                    Console.ForegroundColor = ConsoleColor.DarkGreen;
+                    Console.Write($"{n}");
+                    Console.ResetColor();
+                    Console.Write($", edge density ");
+                    Console.ForegroundColor = ConsoleColor.DarkGreen;
+                    Console.WriteLine($"{density}");
+                    Console.ResetColor();
+                    Console.WriteLine();
                     // IMPORTANT2 the problem
                     var graph = GraphFactory.GenerateRandom2(n, density, random.Next());
+                    PerformTestGetCSVResults(graph);
                 }
             }
 #else
@@ -69,7 +81,15 @@ namespace UserInterface
 
                 void PerformanceReport(object sender, PerformanceReport report)
                 {
-                    Console.WriteLine($"Found new solution: {report.minimalNumberOfColoursUsed} after {report.elapsedProcessorTime} ms");
+                    Console.Write($"Found new solution: ");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write($"{report.minimalNumberOfColoursUsed}");
+                    Console.ResetColor();
+                    Console.Write($" after ");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write($"{report.elapsedProcessorTime}");
+                    Console.ResetColor();
+                    Console.WriteLine($" ms");
                     reportedTimes.Add(report.elapsedProcessorTime);
                     reportedColourings.Add(report.minimalNumberOfColoursUsed);
                     var text = GetTextToExport();

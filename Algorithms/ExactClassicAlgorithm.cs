@@ -112,7 +112,7 @@ namespace Algorithms
                     throw new Exception("Proposed solution is not better");
                 // warning! there may be vertices with negative colourings!
                 bestSolution = currentSolution.DeepClone();
-                NewBestSolutionFound.Invoke(null, new PerformanceReport()
+                NewBestSolutionFound?.Invoke(null, new PerformanceReport()
                 {
                     minimalNumberOfColoursUsed = bestSolution.colourCount,
                     elapsedProcessorTime = stopwatch.Elapsed

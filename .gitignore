@@ -261,3 +261,5 @@ __pycache__/
 *.pyc
 /.vscode/tasks.json
 /.vscode/launch.json
+/AcyclicColouring
+/AcyclicColouring_Horne_Wojciechowski.zip
