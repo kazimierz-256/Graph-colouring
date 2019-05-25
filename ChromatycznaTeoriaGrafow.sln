@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserInterface", "UserInterface\UserInterface.csproj", "{B40169F1-B3B3-4108-A8C6-AC6F406E4580}"
+	ProjectSection(ProjectDependencies) = postProject
+		{55DFCC20-79E8-496D-B56F-306983B03C0F} = {55DFCC20-79E8-496D-B56F-306983B03C0F}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Algorithms", "Algorithms\Algorithms.csproj", "{EF5B4452-52C4-479D-AD6D-EB2D5B4AE556}"
 EndProject

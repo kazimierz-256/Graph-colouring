@@ -7,7 +7,7 @@ namespace Algorithms.GraphFactory
 {
     public static class GraphFactory
     {
-        private static int[][] DictionaryToArray(Dictionary<int, HashSet<int>> dictionary)
+        public static int[][] DictionaryToArray(Dictionary<int, HashSet<int>> dictionary)
         {
             var array = new int[dictionary.Keys.Count][];
             foreach (var kvp in dictionary)
