@@ -175,9 +175,10 @@ namespace Algorithms
             return possibilities;
         }
 
+
+        // there is no path with alternating colour so that its length is equal to 3+maxDeth
         private bool EnsureAcyclicityAndValidity(Graph graph, int vertex, int colourCandidate, Solution currentSolution, int maxDepth)
         {
-            // TODO: limit depth?
             var coloursOccupiedByNeighbours = new int[currentSolution.colourCount];
             var neighboursToConsider = new int[graph.VerticesKVPs[vertex].Length];
             var neighbourToConsiderCount = 0;

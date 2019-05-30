@@ -23,7 +23,7 @@ namespace UserInterface
                 var algorithm = new ExactAcyclicAlgorithmDepthLimit();
                 algorithmDescription = "acyclic";
                 algorithm.NewBestSolutionFound += performanceReport;
-                return algorithm.ColourGraph(graph);
+                return algorithm.ColourGraphApproximatelyDepth(graph, 100);
             }
 
             var nRange = Enumerable.Range(24, 60);
@@ -31,7 +31,7 @@ namespace UserInterface
             var densityRange = Enumerable.Range(0, rangeCount).Select(number => .5d - .5d * Math.Cos(Math.PI * ((2 * number + 1) / (2d * rangeCount))));
 
             Console.WriteLine("Performance tests:");
-#if true
+#if false
             var random = new Random(1);
             foreach (var n in nRange)
             {
@@ -58,7 +58,7 @@ namespace UserInterface
                 }
             }
 #else
-            var graph2 = Reader.ParseGraph("flat300_28_0");
+            var graph2 = Reader.ParseGraph("queen6_6");
             PerformTestGetCSVResults(graph2);
 #endif
 
