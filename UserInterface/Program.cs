@@ -20,19 +20,19 @@ namespace UserInterface
             var algorithmDescription = string.Empty;
             Dictionary<int, int> generateNewAlgorithmAndSolve(EventHandler<PerformanceReport> performanceReport, Graph graph)
             {
-                var algorithm = new ExactAcyclicAlgorithmDepthLimit();
-                algorithmDescription = "acyclic";
+                var algorithm = new ExactClassicAlgorithm();
+                algorithmDescription = "exact";
                 algorithm.NewBestSolutionFound += performanceReport;
-                return algorithm.ColourGraphApproximatelyDepth(graph, 100);
+                return algorithm.ColourGraph(graph);
             }
 
-            var nRange = Enumerable.Range(24, 60);
+            var nRange = Enumerable.Range(70, 80);
             var rangeCount = 10;
             var densityRange = Enumerable.Range(0, rangeCount).Select(number => .5d - .5d * Math.Cos(Math.PI * ((2 * number + 1) / (2d * rangeCount))));
 
             Console.WriteLine("Performance tests:");
 #if false
-            var random = new Random(1);
+            var random = new Random(12);
             foreach (var n in nRange)
             {
                 Console.WriteLine();
@@ -58,7 +58,7 @@ namespace UserInterface
                 }
             }
 #else
-            var graph2 = Reader.ParseGraph("queen6_6");
+            var graph2 = Reader.ParseGraph("games120");
             PerformTestGetCSVResults(graph2);
 #endif
 
