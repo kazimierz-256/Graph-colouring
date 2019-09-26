@@ -164,15 +164,13 @@ namespace Algorithms
             foreach (var neighbour in graph.VerticesKVPs[vertex])
             {
                 var colour = currentSolution.vertexToColour[neighbour];
-                if (colour != -1)
-                {
-                    if (colour < occupiedColours.Length)
-                        occupiedColours[colour] = true;
-                }
-                else
+                if (colour == -1)
                     numberOfUnknownVertices += 1;
+                else if (colour < occupiedColours.Length)
+                        occupiedColours[colour] = true;
+                
             }
-            //maximumInclusivePermissibleColour = Math.Min(maximumInclusivePermissibleColour, secondLimitingColourInclusive);
+
             for (int colourCandidate = 0; colourCandidate <= maximumInclusivePermissibleColour && possibilities.Count <= numberOfUnknownVertices; colourCandidate++)
             {
                 if (!occupiedColours[colourCandidate])
