@@ -20,18 +20,18 @@ namespace UserInterface
             var algorithmDescription = string.Empty;
             Dictionary<int, int> generateNewAlgorithmAndSolve(EventHandler<PerformanceReport> performanceReport, Graph graph)
             {
-                var algorithm = new ExactClassicAlgorithm();
+                var algorithm = new ExactMisAlgorithm();
                 algorithmDescription = "exact";
                 algorithm.NewBestSolutionFound += performanceReport;
                 return algorithm.ColourGraph(graph);
             }
 
-            var nRange = Enumerable.Range(70, 80);
+            var nRange = Enumerable.Range(40, 190);
             var rangeCount = 10;
-            var densityRange = Enumerable.Range(0, rangeCount).Select(number => .5d - .5d * Math.Cos(Math.PI * ((2 * number + 1) / (2d * rangeCount))));
+            var densityRange = Enumerable.Range(0, rangeCount).Select(number => .7d + .3d * Math.Cos(Math.PI * ((2 * number + 1) / (2d * rangeCount))));
 
             Console.WriteLine("Performance tests:");
-#if false
+
             var random = new Random(12);
             foreach (var n in nRange)
             {
@@ -57,10 +57,8 @@ namespace UserInterface
                     PerformTestGetCSVResults(graph);
                 }
             }
-#else
-            var graph2 = Reader.ParseGraph("games120");
-            PerformTestGetCSVResults(graph2);
-#endif
+            // var graph2 = Reader.ParseGraph("games120");
+            // PerformTestGetCSVResults(graph2);
 
             string PerformTestGetCSVResults(Graph graph)
             {
@@ -108,7 +106,7 @@ namespace UserInterface
                 PerformanceReport(null, new PerformanceReport()
                 {
                     elapsedProcessorTime = stopwatch.Elapsed,
-                    minimalNumberOfColoursUsed = reportedColourings.Last()
+                    minimalNumberOfColoursUsed = reportedColourings.LastOrDefault()
                 });
 
                 return GetTextToExport();

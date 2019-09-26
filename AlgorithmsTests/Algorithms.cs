@@ -24,12 +24,12 @@ namespace AlgorithmsTests
         private void TestGraph(Graph graph, int? expectedChromaticNumber, int? expectedAcyclicNumber)
         {
             // classical tests
-            var solution = new ExactClassicAlgorithm().ColourGraph(graph);
+            var solution = new ExactMisAlgorithm().ColourGraph(graph);
             DetailedClassicVerification(graph, solution, expectedChromaticNumber);
 
             // acyclicity tests
-            var acyclicSolution = new ExactAcyclicAlgorithmDepthLimit().ColourGraph(graph);
-            DetailedAcyclicVerification(graph, acyclicSolution, null, expectedAcyclicNumber);
+            //var acyclicSolution = new ExactAcyclicAlgorithmDepthLimit().ColourGraph(graph);
+            //DetailedAcyclicVerification(graph, acyclicSolution, null, expectedAcyclicNumber);
         }
 
         private void DetailedClassicVerification(Graph graph, Dictionary<int, int> solution, int? expectedChromaticNumber)

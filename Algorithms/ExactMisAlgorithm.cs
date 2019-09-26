@@ -11,7 +11,7 @@ namespace Algorithms
 
         private class GraphFast
         {
-            public int[][] adjacencyMatrix;
+            //public bool[][] adjacencyMatrix;
             public int[] vertices;
             public int vertexCount;
 
@@ -21,6 +21,34 @@ namespace Algorithms
             public int[][] neighbours;
             public int[][] neighbourPositionInNeighbourhood;
             public int[] neighbourCount;
+            public GraphFast ShallowClone()
+            {
+                return new GraphFast(vertices, vertexCount, vertexPositionInVertices, neighbours, neighbourPositionInNeighbourhood, neighbourCount);
+            }
+            public GraphFast DeepIrreversibleClone()
+            {
+                var newVertices = new int[vertexCount];
+                var newVertexPositionInVertices = new int[vertexPositionInVertices.Length];
+                var newNeighbourCount = new int[neighbourCount.Length];
+                var newNeighbours = new int[neighbours.Length][];
+                var newNeighbourPositionInNeighbourhood = new int[neighbourPositionInNeighbourhood.Length][];
+                for (int i = 0; i < vertexCount; i++)
+                {
+                    var vertex = vertices[i];
+                    newVertices[i] = vertex;
+                    newVertexPositionInVertices[vertex] = vertexPositionInVertices[vertex];
+                    newNeighbourCount[vertex] = neighbourCount[vertex];
+                    newNeighbours[vertex] = new int[neighbourCount[vertex]];
+                    newNeighbourPositionInNeighbourhood[vertex] = new int[neighbourPositionInNeighbourhood.Length];
+                    for (int j = 0; j < neighbourCount[vertex]; j++)
+                    {
+                        var neighbour = neighbours[vertex][j];
+                        newNeighbours[vertex][j] = neighbour;
+                        newNeighbourPositionInNeighbourhood[vertex][neighbour] = neighbourPositionInNeighbourhood[vertex][neighbour];
+                    }
+                }
+                return new GraphFast(newVertices, vertexCount, newVertexPositionInVertices, newNeighbours, newNeighbourPositionInNeighbourhood, newNeighbourCount);
+            }
             public GraphFast(Graph graph)
             {
                 // copy over bare details
@@ -30,13 +58,19 @@ namespace Algorithms
                 neighbourCount = new int[graph.VerticesKVPs.Length];
                 vertexPositionInVertices = new int[graph.VerticesKVPs.Length];
                 neighbours = new int[graph.VerticesKVPs.Length][];
-                adjacencyMatrix = new int[graph.VerticesKVPs.Length][];
+                //adjacencyMatrix = new bool[graph.VerticesKVPs.Length][];
+                neighbourPositionInNeighbourhood = new int[graph.VerticesKVPs.Length][];
                 for (int i = 0; i < graph.VerticesKVPs.Length; i++)
                 {
                     neighbours[i] = new int[graph.VerticesKVPs[i].Length];
-                    adjacencyMatrix[i] = new int[graph.VerticesKVPs[i].Length];
+                    neighbourPositionInNeighbourhood[i] = new int[graph.VerticesKVPs.Length];
+                    //adjacencyMatrix[i] = new bool[graph.VerticesKVPs[i].Length];
                     graph.VerticesKVPs[i].CopyTo(neighbours[i], 0);
-                    graph.VerticesKVPs[i].CopyTo(adjacencyMatrix[i], 0);
+                    for (int j = 0; j < graph.VerticesKVPs[i].Length; j++)
+                    {
+                        //adjacencyMatrix[i][j] = true;
+                        neighbourPositionInNeighbourhood[i][neighbours[i][j]] = j;
+                    }
 
                     vertices[i] = i;
                     neighbourCount[i] = graph.VerticesKVPs[i].Length;
@@ -44,6 +78,17 @@ namespace Algorithms
                 }
 
 
+            }
+
+            public GraphFast(int[] vertices, int vertexCount, int[] vertexPositionInVertices, int[][] neighbours, int[][] neighbourPositionInNeighbourhood, int[] neighbourCount)
+            {
+                //this.adjacencyMatrix = adjacencyMatrix;
+                this.vertices = vertices;
+                this.vertexCount = vertexCount;
+                this.vertexPositionInVertices = vertexPositionInVertices;
+                this.neighbours = neighbours;
+                this.neighbourPositionInNeighbourhood = neighbourPositionInNeighbourhood;
+                this.neighbourCount = neighbourCount;
             }
 
             private void RemoveElementFromArray(
@@ -58,11 +103,12 @@ namespace Algorithms
                 arrayItself[removedElementPosition] = elementToSwap;
                 positionIdentificationArray[elementToSwap] = removedElementPosition;
                 positionIdentificationArray[elementToRemove] = arraySize - 1;// could store "-removedElementPosition" to retain a backup
+                // positionIdentificationArray[elementToRemove] = -removedElementPosition;
                 arraySize -= 1;
             }
 
             // does not preserve order upon backtracking
-            private int RestoreElementFromArray(
+            private void RestoreElementFromArray(
                 int[] positionIdentificationArray,
                 int[] arrayItself,
                 ref int arraySize)
@@ -76,7 +122,7 @@ namespace Algorithms
                 // positionIdentificationArray[elementToSwapWith] = arraySize;
                 arraySize += 1;
 
-                return arrayItself[arraySize - 1];
+                // return arrayItself[arraySize - 1];
             }
 
             public void RemoveVertex(int vertexToDelete)
@@ -88,19 +134,19 @@ namespace Algorithms
                 for (int i = 0; i < neighbourCount[vertexToDelete]; i++)
                 {
                     var neighbour = neighbours[vertexToDelete][i];
-                    RemoveElementFromArray(vertexToDelete, neighbourPositionInNeighbourhood[neighbour], neighbours[neighbour], ref vertexCount);
+                    RemoveElementFromArray(vertexToDelete, neighbourPositionInNeighbourhood[neighbour], neighbours[neighbour], ref neighbourCount[neighbour]);
                 }
             }
             public void RestoreDeletedVertex()
             {
-                var restoredVertex = RestoreElementFromArray(vertexPositionInVertices, vertices, ref vertexCount);
-
+                RestoreElementFromArray(vertexPositionInVertices, vertices, ref vertexCount);
+                var restoredVertex = vertices[vertexCount - 1];
                 // TODO: remove the vertex from neighbours
                 // for each neighbour swap using the same method
                 for (int i = 0; i < neighbourCount[restoredVertex]; i++)
                 {
                     var neighbour = neighbours[restoredVertex][i];
-                    RestoreElementFromArray(neighbourPositionInNeighbourhood[neighbour], neighbours[neighbour], ref vertexCount);
+                    RestoreElementFromArray(neighbourPositionInNeighbourhood[neighbour], neighbours[neighbour], ref neighbourCount[neighbour]);
                 }
             }
         }
@@ -108,28 +154,28 @@ namespace Algorithms
         private class Solution
         {
             public int colourCount;
-            public int[] vertexToColour;
-            public int solvedCount;
+            public Stack<List<int>> colourLayer;
+
             public Solution DeepClone()
             {
-                var dictionaryClone = new int[vertexToColour.Length];
-                Array.Copy(vertexToColour, dictionaryClone, vertexToColour.Length);
+                var colourLayerClone = new Stack<List<int>>();
+                foreach (var layer in colourLayer)
+                {
+                    var clonedLayer = new List<int>(layer);
+                    colourLayerClone.Push(clonedLayer);
+                }
 
                 return new Solution
                 {
                     colourCount = colourCount,
-                    vertexToColour = dictionaryClone
+                    colourLayer = colourLayerClone
                 };
             }
         }
 
         private Stopwatch stopwatch = new Stopwatch();
         public event EventHandler<PerformanceReport> NewBestSolutionFound;
-        public Dictionary<int, int> ColourGraph(Graph graph) => ColourGraph(graph, -1, 1.0);
-        public Dictionary<int, int> ColourGraph(Graph graph, int upperBoundOnNumberOfSteps) => ColourGraph(graph, upperBoundOnNumberOfSteps, 1.0);
-        public Dictionary<int, int> ColourGraph(Graph graph, double alphaRatio) => ColourGraph(graph, -1, alphaRatio);
-
-        private Dictionary<int, int> ColourGraph(Graph graph, int upperBoundOnNumberOfSteps, double alphaRatio)
+        public Dictionary<int, int> ColourGraph(Graph graph)
         {
             stopwatch.Restart();
             var dummySolution = new Solution()
@@ -139,21 +185,34 @@ namespace Algorithms
             var initialSolution = new Solution()
             {
                 colourCount = 0,
-                vertexToColour = new int[graph.VerticesKVPs.Length]
+                colourLayer = new Stack<List<int>>()
             };
-            for (int i = 0; i < graph.VerticesKVPs.Length; i++)
-            {
-                initialSolution.vertexToColour[i] = -1;
-            }
 
             graph = graph.CloneNeighboursSorted(v => graph.VerticesKVPs[v].Length);
 
-            var leftSteps = upperBoundOnNumberOfSteps;
-            var solution = Recurse(graph, initialSolution, dummySolution, ref leftSteps, alphaRatio).vertexToColour;
+            // var solution = Recurse(graph, initialSolution, dummySolution, ref leftSteps, alphaRatio).vertexToColour;
             var dictionary = new Dictionary<int, int>();
-            for (int i = 0; i < solution.Length; i++)
+            //var misCount = 0;
+            //var largestMIS = 0;
+            //foreach (var mis in EnumerateMIS(graph))
+            //{
+            //    misCount += 1;
+            //    if (mis.vertices.Count > largestMIS)
+            //        largestMIS = mis.vertices.Count;
+            //}
+            //System.Console.WriteLine($"MIS count: {misCount}, largest: {largestMIS}");
+            var ignoredVertices = new bool[graph.VerticesKVPs.Length];
+            var primaryGraph = new GraphFast(graph);
+            var complementaryGraph = new GraphFast(graph);
+            var bestSolution = Recurse(ignoredVertices, primaryGraph, complementaryGraph, initialSolution, dummySolution);
+            var layerColour = 0;
+            foreach (var layer in bestSolution.colourLayer)
             {
-                dictionary.Add(i, solution[i]);
+                foreach (var vertex in layer)
+                {
+                    dictionary.Add(vertex, layerColour);
+                }
+                layerColour += 1;
             }
             stopwatch.Stop();
             return dictionary;
@@ -175,29 +234,13 @@ namespace Algorithms
             // add detailed parameters
             if (graph.vertexCount == 0)
             {
+                // ignored vertices can only be removed by nonignored so the following if is unnecessary
+                // if (ignoredVertexCount == 0)
                 yield return new MisResult()
                 {
                     graphWithoutMIS = complementaryGraph,
                     vertices = verticesAlreadyInMIS
                 };
-
-            }
-            else if (graph.vertexCount == 1)
-            {
-                // ensure everything is all wright with leftovers!
-
-                var chosenVertex = graph.vertices[0];
-                complementaryGraph.RemoveVertex(chosenVertex);
-                verticesAlreadyInMIS.Add(chosenVertex);
-
-                yield return new MisResult()
-                {
-                    graphWithoutMIS = complementaryGraph,
-                    vertices = verticesAlreadyInMIS
-                };
-
-                verticesAlreadyInMIS.RemoveAt(verticesAlreadyInMIS.Count - 1);
-                complementaryGraph.RestoreDeletedVertex();
             }
             else
             {
@@ -260,12 +303,16 @@ namespace Algorithms
                     // each vertex has a satifiability list
                     // there is a variable representing vertices left to satisfy
                     // each vertex has a counter that (when >0) triggers satisfiability stuff
-                    ignoredVerex[chosenVertex] = true;
-                    foreach (var MIS in FindMIS(graph, complementaryGraph, verticesAlreadyInMIS, ignoredVerex, ignoredVertexCount + 1))
+                    // TODO make extra checks here and there is it possible to satisfy an ignored vertex, if not STOP
+                    if (graph.neighbourCount[chosenVertex] > 0)
                     {
-                        yield return MIS;
+                        ignoredVerex[chosenVertex] = true;
+                        foreach (var MIS in FindMIS(graph, complementaryGraph, verticesAlreadyInMIS, ignoredVerex, ignoredVertexCount + 1))
+                        {
+                            yield return MIS;
+                        }
+                        ignoredVerex[chosenVertex] = false;
                     }
-                    ignoredVerex[chosenVertex] = false;
                 }
             }
         }
@@ -282,131 +329,46 @@ namespace Algorithms
             }
         }
 
-        private Solution Recurse(GraphFast graph, Graph graphToColour, Solution currentSolution, Solution bestSolution, ref int upperBoundOnNumberOfSteps, double alphaRatio)
+        private Solution Recurse(bool[] ignoredVerex, GraphFast primaryGraph, GraphFast complementaryGraph, Solution currentSolution, Solution bestSolution, int latestMisSize = int.MaxValue)
         {
-
-
-            if (upperBoundOnNumberOfSteps != -1 && bestSolution.colourCount < int.MaxValue)
+            if (complementaryGraph.vertexCount == 0)
             {
-                if (upperBoundOnNumberOfSteps == 0)
-                    return bestSolution;
-                else
-                    upperBoundOnNumberOfSteps -= 1;
-            }
-            if (currentSolution.solvedCount < graphToColour.VerticesKVPs.Length)
-            {
-                // choose a vertex to colour
-                var vertexToColour = ChooseSuitableVertex(graphToColour, currentSolution, bestSolution, out var colouringPossibilities);
-
-                // for in possible colours
-                foreach (var colour in colouringPossibilities)
+                if (currentSolution.colourCount < bestSolution.colourCount)
                 {
-                    var increasedColourCount = false;
-                    if (colour >= currentSolution.colourCount)
+                    bestSolution = currentSolution.DeepClone();
+                    NewBestSolutionFound?.Invoke(null, new PerformanceReport()
                     {
-                        if (colour > currentSolution.colourCount)
-                            throw new Exception("New colour is too large");
-                        currentSolution.colourCount += 1;
-                        increasedColourCount = true;
-                    }
-                    if (currentSolution.colourCount * alphaRatio < bestSolution.colourCount)
-                    {
-                        currentSolution.vertexToColour[vertexToColour] = colour;
-                        currentSolution.solvedCount += 1;
-
-                        // recurse and update best statistics
-                        bestSolution = Recurse(graphToColour, currentSolution, bestSolution, ref upperBoundOnNumberOfSteps, alphaRatio);
-
-                        currentSolution.solvedCount -= 1;
-                        currentSolution.vertexToColour[vertexToColour] = -1;
-                    }
-                    if (increasedColourCount)
-                    {
-                        currentSolution.colourCount -= 1;
-                    }
+                        minimalNumberOfColoursUsed = bestSolution.colourCount,
+                        elapsedProcessorTime = stopwatch.Elapsed
+                    });
+                }
+                else
+                {
+                    // code should not reach this part
                 }
             }
             else
             {
-                // no more vertices to colour
-                // if the solution is indeed better...
-                if (currentSolution.colourCount >= bestSolution.colourCount)
-                    throw new Exception("Proposed solution is not better");
-                // warning! there may be vertices with negative colourings!
-                bestSolution = currentSolution.DeepClone();
-                NewBestSolutionFound?.Invoke(null, new PerformanceReport()
+                // get MIS get and complimentary graph
+                // compute subsolution
+                var verticesAlreadyInMIS = new List<int>();
+                currentSolution.colourCount += 1;
+                foreach (var mis in FindMIS(primaryGraph, complementaryGraph, verticesAlreadyInMIS, ignoredVerex, 0))
                 {
-                    minimalNumberOfColoursUsed = bestSolution.colourCount,
-                    elapsedProcessorTime = stopwatch.Elapsed
-                });
-            }
-
-            return bestSolution;
-        }
-
-        // may return -1 if there is no suitable vertex
-        private int ChooseSuitableVertex(Graph graph, Solution currentSolution, Solution bestSolution, out List<int> bestColouring)
-        {
-            var minColourPossibilities = int.MaxValue;
-            var maxNeighbourCount = -1;
-            var maxVertex = -1;
-            bestColouring = null;
-
-            for (int i = 0; i < graph.VerticesKVPs.Length; i++)
-            {
-                var colouringsNeighbour = GetPossibleColourings(graph, i, currentSolution, bestSolution);
-                if (colouringsNeighbour.Count == 0)
-                {
-                    bestColouring = colouringsNeighbour;
-                    return i;
-                }
-                var score = colouringsNeighbour.Count;
-                if (colouringsNeighbour[colouringsNeighbour.Count - 1] == currentSolution.colourCount)
-                {
-                    score += int.MaxValue / 2;
-                }
-                if (currentSolution.vertexToColour[i] == -1 && (score < minColourPossibilities || (score == minColourPossibilities && graph.VerticesKVPs[i].Length > maxNeighbourCount)))
-                {
-                    maxNeighbourCount = graph.VerticesKVPs[i].Length;
-                    minColourPossibilities = score;
-                    maxVertex = i;
-                    bestColouring = colouringsNeighbour;
-                }
-            }
-
-            return maxVertex;
-        }
-
-        private List<int> GetPossibleColourings(Graph graph, int vertex, Solution currentSolution, Solution bestSolution)
-        {
-            var possibilities = new List<int>();
-            var maximumInclusivePermissibleColour = Math.Min(currentSolution.colourCount, bestSolution.colourCount - 2);
-            var secondLimitingColourInclusive = graph.VerticesKVPs[vertex].Length;
-            var occupiedColours = new bool[graph.VerticesKVPs[vertex].Length + 1];
-            foreach (var neighbour in graph.VerticesKVPs[vertex])
-            {
-                if (currentSolution.vertexToColour[neighbour] != -1)
-                {
-                    var colour = currentSolution.vertexToColour[neighbour];
-                    if (colour < occupiedColours.Length)
+                    // optionally check for cliques to delete
+                    if (mis.vertices.Count <= latestMisSize)// pre-optimization
                     {
-                        if (occupiedColours[colour])
-                            secondLimitingColourInclusive -= 1;
-                        else
-                            occupiedColours[colour] = true;
+                        currentSolution.colourLayer.Push(mis.vertices);
+                        bestSolution = Recurse(ignoredVerex, complementaryGraph, complementaryGraph.DeepIrreversibleClone(), currentSolution, bestSolution, mis.vertices.Count);
+                        currentSolution.colourLayer.Pop();
                     }
                 }
-            }
-            maximumInclusivePermissibleColour = Math.Min(maximumInclusivePermissibleColour, secondLimitingColourInclusive);
-            for (int colourCandidate = 0; colourCandidate <= maximumInclusivePermissibleColour; colourCandidate++)
-            {
-                if (!occupiedColours[colourCandidate])
-                {
-                    possibilities.Add(colourCandidate);
-                }
-            }
+                currentSolution.colourCount -= 1;
 
-            return possibilities;
+            }
+            return bestSolution;
+
         }
+
     }
 }

@@ -22,7 +22,8 @@ namespace AlgorithmsTests
 
         [Fact]
         public void GruenbaumsGraph() => TestGraph(GraphFactory.GenerateGruenbaumsGraph());
-        [Fact]
+
+
         private void TestGraph(Graph graph, int? independenceNumber = null)
         {
             var largestMIS = 0;
@@ -30,10 +31,13 @@ namespace AlgorithmsTests
             {
                 if ((mis == null || mis.Count == 0) && graph.VerticesKVPs.Length > 0)
                     throw new Exception("Empty MIS!");
-                
+
                 VerifyUniqueness(graph, mis);
                 VerifyMaximality(graph, mis);
                 VerifyIndependence(graph, mis);
+
+                if (mis.Count > largestMIS)
+                    largestMIS = mis.Count;
             }
             if (independenceNumber.HasValue)
             {
@@ -73,7 +77,7 @@ namespace AlgorithmsTests
                     if (!set.Contains(i))
                         throw new Exception($"Singleton {i} from graph {graph.graphName} not in MIS!");
                 }
-                else
+                else if (!set.Contains(i))
                 {
                     var thereExistsAnAdjacentMIS = false;
                     for (int j = 0; j < graph.VerticesKVPs[i].Length; j++)
@@ -85,10 +89,9 @@ namespace AlgorithmsTests
                         }
                     }
 
-                    // exception
-                    if (thereExistsAnAdjacentMIS)
+                    if (!thereExistsAnAdjacentMIS)
                     {
-                        throw new Exception($"Vertices {mis[i]} and {j} are adjacent in MIS in graph {graph.graphName}");
+                        throw new Exception($"Vertex {i} is not adjacent to any vertex of MIS");
                     }
                 }
             }
