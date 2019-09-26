@@ -225,12 +225,13 @@ namespace Algorithms
         }
 
         // ignoredVertexCount might turn out to be useless
-        private bool FindMIS(GraphFast graph,
-                                               GraphFast complementaryGraph,
-                                               List<int> verticesAlreadyInMIS,
-                                               bool[] ignoredVertex,
-                                               int ignoredVertexCount,
-                                               Func<MisResult, bool> consumeAndDecideToContinue)
+        private bool FindMIS(
+            GraphFast graph,
+            GraphFast complementaryGraph,
+            List<int> verticesAlreadyInMIS,
+            bool[] ignoredVertex,
+            int ignoredVertexCount,
+            Func<MisResult, bool> consumeAndDecideToContinue)
         {
             var continueExecution = true;
             // add detailed parameters
@@ -339,10 +340,6 @@ namespace Algorithms
                         elapsedProcessorTime = stopwatch.Elapsed
                     });
                 }
-                else
-                {
-                    // code should not reach this part
-                }
             }
             else if (currentSolution.colourCount + 1 < bestSolution.colourCount) // could improve this bound by finding a clique
             {
@@ -364,7 +361,6 @@ namespace Algorithms
                     return currentSolution.colourCount < bestSolution.colourCount;
                 });
                 currentSolution.colourCount -= 1;
-
             }
             return bestSolution;
 

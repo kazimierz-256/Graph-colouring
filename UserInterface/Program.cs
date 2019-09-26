@@ -20,15 +20,15 @@ namespace UserInterface
             var algorithmDescription = string.Empty;
             Dictionary<int, int> generateNewAlgorithmAndSolve(EventHandler<PerformanceReport> performanceReport, Graph graph)
             {
-                var algorithm = new ExactMisAlgorithm();
+                var algorithm = new ExactClassicAlgorithm();
                 algorithmDescription = "exact";
                 algorithm.NewBestSolutionFound += performanceReport;
                 return algorithm.ColourGraph(graph);
             }
 
-            var nRange = Enumerable.Range(25, 190);
+            var nRange = Enumerable.Range(70, 190);
             var rangeCount = 10;
-            var densityRange = Enumerable.Range(0, rangeCount).Select(number => .5d + .0d * Math.Cos(Math.PI * ((2 * number + 1) / (2d * rangeCount))));
+            var densityRange = Enumerable.Range(0, rangeCount).Select(number => .5d - .5d * Math.Cos(Math.PI * ((2 * number + 1) / (2d * rangeCount))));
 
             Console.WriteLine("Performance tests:");
 
@@ -36,9 +36,9 @@ namespace UserInterface
             foreach (var n in nRange)
             {
                 Console.WriteLine();
-                    Console.WriteLine();
-                    Console.WriteLine();
-                    Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine();
                 foreach (var density in densityRange)
                 {
                     Console.WriteLine();
@@ -99,8 +99,14 @@ namespace UserInterface
                 //Console.WriteLine($"Size {n}, density {density:f2}");
 
                 stopwatch.Restart();
-                generateNewAlgorithmAndSolve(PerformanceReport, graph);
+                var solution = generateNewAlgorithmAndSolve(PerformanceReport, graph);
                 stopwatch.Stop();
+
+                //for (int i = 0; i < solution.Max(kvp => kvp.Value); i++)
+                //{
+                //    var count = solution.Count(kvp => kvp.Value == i);
+                //    Console.WriteLine($"Colour {i} count: {count}");
+                //}
 
                 // mark the end of computation time
                 PerformanceReport(null, new PerformanceReport()

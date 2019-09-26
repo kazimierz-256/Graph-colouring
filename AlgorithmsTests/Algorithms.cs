@@ -24,7 +24,7 @@ namespace AlgorithmsTests
         private void TestGraph(Graph graph, int? expectedChromaticNumber, int? expectedAcyclicNumber)
         {
             // classical tests
-            var solution = new ExactMisAlgorithm().ColourGraph(graph);
+            var solution = new ExactClassicAlgorithm().ColourGraph(graph);
             DetailedClassicVerification(graph, solution, expectedChromaticNumber);
 
             // acyclicity tests
