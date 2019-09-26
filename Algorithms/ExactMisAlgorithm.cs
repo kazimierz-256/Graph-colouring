@@ -204,7 +204,7 @@ namespace Algorithms
             var ignoredVertices = new bool[graph.VerticesKVPs.Length];
             var primaryGraph = new GraphFast(graph);
             var complementaryGraph = new GraphFast(graph);
-            var bestSolution = Recurse(ignoredVertices, primaryGraph, complementaryGraph, initialSolution, dummySolution);
+            var bestSolution = Recurse(graph.VerticesKVPs.Length, primaryGraph, complementaryGraph, initialSolution, dummySolution);
             var layerColour = 0;
             foreach (var layer in bestSolution.colourLayer)
             {
@@ -225,22 +225,24 @@ namespace Algorithms
         }
 
         // ignoredVertexCount might turn out to be useless
-        private IEnumerable<MisResult> FindMIS(GraphFast graph,
+        private bool FindMIS(GraphFast graph,
                                                GraphFast complementaryGraph,
                                                List<int> verticesAlreadyInMIS,
-                                               bool[] ignoredVerex,
-                                               int ignoredVertexCount)
+                                               bool[] ignoredVertex,
+                                               int ignoredVertexCount,
+                                               Func<MisResult, bool> consumeAndDecideToContinue)
         {
+            var continueExecution = true;
             // add detailed parameters
             if (graph.vertexCount == 0)
             {
                 // ignored vertices can only be removed by nonignored so the following if is unnecessary
                 // if (ignoredVertexCount == 0)
-                yield return new MisResult()
+                continueExecution = consumeAndDecideToContinue(new MisResult()
                 {
                     graphWithoutMIS = complementaryGraph,
                     vertices = verticesAlreadyInMIS
-                };
+                });
             }
             else
             {
@@ -251,7 +253,7 @@ namespace Algorithms
                 for (int i = 0; i < graph.vertexCount; i++)
                 {
                     var tmpVertex = graph.vertices[i];
-                    if (!ignoredVerex[tmpVertex])
+                    if (!ignoredVertex[tmpVertex])
                     {
                         var tmpVertexScore = graph.neighbourCount[tmpVertex];
                         if (tmpVertexScore > vertexScore)
@@ -275,7 +277,7 @@ namespace Algorithms
                     for (int i = 0; i < neighbourCount; i++)
                     {
                         var neighbour = neighbours[i];
-                        if (ignoredVerex[neighbour])
+                        if (ignoredVertex[neighbour])
                             newIgnoredVertexCount -= 1;
                         graph.RemoveVertex(neighbour);
                     }
@@ -283,10 +285,7 @@ namespace Algorithms
                     // construct complementary graph
                     complementaryGraph.RemoveVertex(chosenVertex);
                     verticesAlreadyInMIS.Add(chosenVertex);
-                    foreach (var MIS in FindMIS(graph, complementaryGraph, verticesAlreadyInMIS, ignoredVerex, newIgnoredVertexCount))
-                    {
-                        yield return MIS;
-                    }
+                    continueExecution = FindMIS(graph, complementaryGraph, verticesAlreadyInMIS, ignoredVertex, newIgnoredVertexCount, consumeAndDecideToContinue);
                     verticesAlreadyInMIS.RemoveAt(verticesAlreadyInMIS.Count - 1);
                     complementaryGraph.RestoreDeletedVertex();
 
@@ -304,32 +303,30 @@ namespace Algorithms
                     // there is a variable representing vertices left to satisfy
                     // each vertex has a counter that (when >0) triggers satisfiability stuff
                     // TODO make extra checks here and there is it possible to satisfy an ignored vertex, if not STOP
-                    if (graph.neighbourCount[chosenVertex] > 0)
+                    if (continueExecution && graph.neighbourCount[chosenVertex] > 0)
                     {
-                        ignoredVerex[chosenVertex] = true;
-                        foreach (var MIS in FindMIS(graph, complementaryGraph, verticesAlreadyInMIS, ignoredVerex, ignoredVertexCount + 1))
-                        {
-                            yield return MIS;
-                        }
-                        ignoredVerex[chosenVertex] = false;
+                        ignoredVertex[chosenVertex] = true;
+                        continueExecution = FindMIS(graph, complementaryGraph, verticesAlreadyInMIS, ignoredVertex, ignoredVertexCount + 1, consumeAndDecideToContinue);
+                        ignoredVertex[chosenVertex] = false;
                     }
                 }
             }
+            return continueExecution;
         }
 
-        public IEnumerable<List<int>> EnumerateMIS(Graph graph)
-        {
-            var primaryGraph = new GraphFast(graph);
-            var complementaryGraph = new GraphFast(graph);
-            var ignoredVerex = new bool[graph.VerticesKVPs.Length];
-            var verticesAlreadyInMIS = new List<int>();
-            foreach (var mis in FindMIS(primaryGraph, complementaryGraph, verticesAlreadyInMIS, ignoredVerex, 0))
-            {
-                yield return mis.vertices;
-            }
-        }
+        //public IEnumerable<List<int>> EnumerateMIS(Graph graph)
+        //{
+        //    var primaryGraph = new GraphFast(graph);
+        //    var complementaryGraph = new GraphFast(graph);
+        //    var ignoredVertex = new bool[graph.VerticesKVPs.Length];
+        //    var verticesAlreadyInMIS = new List<int>();
+        //    foreach (var mis in FindMIS(primaryGraph, complementaryGraph, verticesAlreadyInMIS, ignoredVertex, 0))
+        //    {
+        //        yield return mis.vertices;
+        //    }
+        //}
 
-        private Solution Recurse(bool[] ignoredVerex, GraphFast primaryGraph, GraphFast complementaryGraph, Solution currentSolution, Solution bestSolution, int latestMisSize = int.MaxValue)
+        private Solution Recurse(int n, GraphFast primaryGraph, GraphFast complementaryGraph, Solution currentSolution, Solution bestSolution, int latestMisSize = int.MaxValue, int lastMisId = int.MaxValue)
         {
             if (complementaryGraph.vertexCount == 0)
             {
@@ -347,22 +344,25 @@ namespace Algorithms
                     // code should not reach this part
                 }
             }
-            else
+            else if (currentSolution.colourCount + 1 < bestSolution.colourCount) // could improve this bound by finding a clique
             {
                 // get MIS get and complimentary graph
                 // compute subsolution
                 var verticesAlreadyInMIS = new List<int>();
                 currentSolution.colourCount += 1;
-                foreach (var mis in FindMIS(primaryGraph, complementaryGraph, verticesAlreadyInMIS, ignoredVerex, 0))
+                var ignoredVertex = new bool[n];
+                FindMIS(primaryGraph, complementaryGraph, verticesAlreadyInMIS, ignoredVertex, 0, mis =>
                 {
                     // optionally check for cliques to delete
-                    if (mis.vertices.Count <= latestMisSize)// pre-optimization
+                    if (mis.vertices.Count < latestMisSize || (mis.vertices.Count == latestMisSize && mis.vertices[0] > lastMisId))// pre-optimization
                     {
                         currentSolution.colourLayer.Push(mis.vertices);
-                        bestSolution = Recurse(ignoredVerex, complementaryGraph, complementaryGraph.DeepIrreversibleClone(), currentSolution, bestSolution, mis.vertices.Count);
+                        bestSolution = Recurse(n, complementaryGraph, complementaryGraph.DeepIrreversibleClone(), currentSolution, bestSolution, mis.vertices.Count, mis.vertices[0]);
                         currentSolution.colourLayer.Pop();
                     }
-                }
+                    // need to fix the enumerator to ensure breakability
+                    return currentSolution.colourCount < bestSolution.colourCount;
+                });
                 currentSolution.colourCount -= 1;
 
             }

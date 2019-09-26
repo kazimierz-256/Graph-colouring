@@ -26,9 +26,9 @@ namespace UserInterface
                 return algorithm.ColourGraph(graph);
             }
 
-            var nRange = Enumerable.Range(40, 190);
+            var nRange = Enumerable.Range(25, 190);
             var rangeCount = 10;
-            var densityRange = Enumerable.Range(0, rangeCount).Select(number => .7d + .3d * Math.Cos(Math.PI * ((2 * number + 1) / (2d * rangeCount))));
+            var densityRange = Enumerable.Range(0, rangeCount).Select(number => .5d + .0d * Math.Cos(Math.PI * ((2 * number + 1) / (2d * rangeCount))));
 
             Console.WriteLine("Performance tests:");
 
