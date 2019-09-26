@@ -159,29 +159,24 @@ namespace Algorithms
         {
             var possibilities = new List<int>();
             var maximumInclusivePermissibleColour = Math.Min(currentSolution.colourCount, bestSolution.colourCount - 2);
-            var secondLimitingColourInclusive = graph.VerticesKVPs[vertex].Length;
+            var numberOfUnknownVertices = 0;
             var occupiedColours = new bool[graph.VerticesKVPs[vertex].Length + 1];
             foreach (var neighbour in graph.VerticesKVPs[vertex])
             {
-                if (currentSolution.vertexToColour[neighbour] != -1)
+                var colour = currentSolution.vertexToColour[neighbour];
+                if (colour != -1)
                 {
-                    var colour = currentSolution.vertexToColour[neighbour];
                     if (colour < occupiedColours.Length)
-                    {
-                        if (occupiedColours[colour])
-                            secondLimitingColourInclusive -= 1;
-                        else
-                            occupiedColours[colour] = true;
-                    }
+                        occupiedColours[colour] = true;
                 }
+                else
+                    numberOfUnknownVertices += 1;
             }
-            maximumInclusivePermissibleColour = Math.Min(maximumInclusivePermissibleColour, secondLimitingColourInclusive);
-            for (int colourCandidate = 0; colourCandidate <= maximumInclusivePermissibleColour; colourCandidate++)
+            //maximumInclusivePermissibleColour = Math.Min(maximumInclusivePermissibleColour, secondLimitingColourInclusive);
+            for (int colourCandidate = 0; colourCandidate <= maximumInclusivePermissibleColour && possibilities.Count <= numberOfUnknownVertices; colourCandidate++)
             {
                 if (!occupiedColours[colourCandidate])
-                {
                     possibilities.Add(colourCandidate);
-                }
             }
 
             return possibilities;
