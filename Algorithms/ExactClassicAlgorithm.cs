@@ -132,23 +132,26 @@ namespace Algorithms
 
             for (int i = 0; i < graph.VerticesKVPs.Length; i++)
             {
-                var colouringsNeighbour = GetPossibleColourings(graph, i, currentSolution, bestSolution);
-                if (colouringsNeighbour.Count == 0)
+                if (currentSolution.vertexToColour[i] == -1)
                 {
-                    bestColouring = colouringsNeighbour;
-                    return i;
-                }
-                var score = colouringsNeighbour.Count;
-                if (colouringsNeighbour[colouringsNeighbour.Count - 1] == currentSolution.colourCount)
-                {
-                    score += int.MaxValue / 2;
-                }
-                if (currentSolution.vertexToColour[i] == -1 && (score < minColourPossibilities || (score == minColourPossibilities && graph.VerticesKVPs[i].Length > maxNeighbourCount)))
-                {
-                    maxNeighbourCount = graph.VerticesKVPs[i].Length;
-                    minColourPossibilities = score;
-                    maxVertex = i;
-                    bestColouring = colouringsNeighbour;
+                    var colouringsNeighbour = GetPossibleColourings(graph, i, currentSolution, bestSolution);
+                    if (colouringsNeighbour.Count == 0)
+                    {
+                        bestColouring = colouringsNeighbour;
+                        return i;
+                    }
+                    var score = colouringsNeighbour.Count;
+                    if (colouringsNeighbour[colouringsNeighbour.Count - 1] == currentSolution.colourCount)
+                    {
+                        score += int.MaxValue / 2;
+                    }
+                    if (score < minColourPossibilities || (score == minColourPossibilities && graph.VerticesKVPs[i].Length > maxNeighbourCount))
+                    {
+                        maxNeighbourCount = graph.VerticesKVPs[i].Length;
+                        minColourPossibilities = score;
+                        maxVertex = i;
+                        bestColouring = colouringsNeighbour;
+                    }
                 }
             }
 
@@ -167,8 +170,8 @@ namespace Algorithms
                 if (colour == -1)
                     numberOfUnknownVertices += 1;
                 else if (colour < occupiedColours.Length)
-                        occupiedColours[colour] = true;
-                
+                    occupiedColours[colour] = true;
+
             }
 
             for (int colourCandidate = 0; colourCandidate <= maximumInclusivePermissibleColour && possibilities.Count <= numberOfUnknownVertices; colourCandidate++)
