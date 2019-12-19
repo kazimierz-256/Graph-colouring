@@ -74,7 +74,18 @@ namespace Algorithms
             if (currentSolution.solvedCount < graphToColour.VerticesKVPs.Length)
             {
                 // choose a vertex to colour
-                var vertexToColour = ChooseSuitableVertex(graphToColour, currentSolution, bestSolution, out var colouringPossibilities);
+                int vertexToColour;
+                List<int> colouringPossibilities;
+                if (true && graphToColour.VerticesKVPs.Length - currentSolution.solvedCount < 0)
+                {
+                    vertexToColour = ChooseSuitableVertexFast(graphToColour, currentSolution, bestSolution, out var _colouringPossibilities);
+                    colouringPossibilities = _colouringPossibilities;
+                }
+                else
+                {
+                    vertexToColour = ChooseSuitableVertex(graphToColour, currentSolution, bestSolution, out var _colouringPossibilities);
+                    colouringPossibilities = _colouringPossibilities;
+                }
 
                 // for in possible colours
                 foreach (var colour in colouringPossibilities)
@@ -155,6 +166,26 @@ namespace Algorithms
                 }
             }
 
+            return maxVertex;
+        }
+        private int ChooseSuitableVertexFast(Graph graph, Solution currentSolution, Solution bestSolution, out List<int> bestColouring)
+        {
+            var maxNeighbourCount = -1;
+            var maxVertex = -1;
+
+            for (int i = 0; i < graph.VerticesKVPs.Length; i++)
+            {
+                if (currentSolution.vertexToColour[i] == -1)
+                {
+                    var score = graph.VerticesKVPs[i].Length;
+                    if (score > maxNeighbourCount)
+                    {
+                        maxNeighbourCount = score;
+                        maxVertex = i;
+                    }
+                }
+            }
+            bestColouring = GetPossibleColourings(graph, maxVertex, currentSolution, bestSolution);
             return maxVertex;
         }
 
