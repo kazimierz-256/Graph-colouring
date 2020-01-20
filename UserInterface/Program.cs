@@ -26,39 +26,39 @@ namespace UserInterface
                 return algorithm.ColourGraph(graph);
             }
 
-            var nRange = Enumerable.Range(60, 190);
-            var rangeCount = 10;
-            var densityRange = Enumerable.Range(0, rangeCount).Select(number => .5d - .5d * Math.Cos(Math.PI * ((2 * number + 1) / (2d * rangeCount))));
+            //var nRange = Enumerable.Range(65, 190);
+            //var rangeCount = 10;
+            //var densityRange = Enumerable.Range(0, rangeCount).Select(number => .5d - .5d * Math.Cos(Math.PI * ((2 * number + 1) / (2d * rangeCount))));
 
-            Console.WriteLine("Performance tests:");
+            //Console.WriteLine("Performance tests:");
 
-            var random = new Random(12);
-            foreach (var n in nRange)
-            {
-                Console.WriteLine();
-                Console.WriteLine();
-                Console.WriteLine();
-                Console.WriteLine();
-                foreach (var density in densityRange)
-                {
-                    Console.WriteLine();
-                    Console.WriteLine();
-                    Console.Write($"New random graph benchmark. Vertices ");
-                    Console.ForegroundColor = ConsoleColor.DarkGreen;
-                    Console.Write($"{n}");
-                    Console.ResetColor();
-                    Console.Write($", edge density ");
-                    Console.ForegroundColor = ConsoleColor.DarkGreen;
-                    Console.WriteLine($"{density}");
-                    Console.ResetColor();
-                    Console.WriteLine();
-                    // IMPORTANT2 the problem
-                    var graph = GraphFactory.GenerateRandom2(n, density, random.Next());
-                    PerformTestGetCSVResults(graph);
-                }
-            }
-            // var graph2 = Reader.ParseGraph("games120");
-            // PerformTestGetCSVResults(graph2);
+            //var random = new Random(12);
+            //foreach (var n in nRange)
+            //{
+            //    Console.WriteLine();
+            //    Console.WriteLine();
+            //    Console.WriteLine();
+            //    Console.WriteLine();
+            //    foreach (var density in densityRange)
+            //    {
+            //        Console.WriteLine();
+            //        Console.WriteLine();
+            //        Console.Write($"New random graph benchmark. Vertices ");
+            //        Console.ForegroundColor = ConsoleColor.DarkGreen;
+            //        Console.Write($"{n}");
+            //        Console.ResetColor();
+            //        Console.Write($", edge density ");
+            //        Console.ForegroundColor = ConsoleColor.DarkGreen;
+            //        Console.WriteLine($"{density}");
+            //        Console.ResetColor();
+            //        Console.WriteLine();
+            //        // IMPORTANT2 the problem
+            //        var graph = GraphFactory.GenerateRandom2(n, density, random.Next());
+            //        PerformTestGetCSVResults(graph);
+            //    }
+            //}
+            var graph2 = Reader.ParseGraph("queen9_9");
+            PerformTestGetCSVResults(graph2);
 
             string PerformTestGetCSVResults(Graph graph)
             {
